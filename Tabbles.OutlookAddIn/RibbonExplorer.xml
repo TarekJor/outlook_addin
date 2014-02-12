@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui"
+          onLoad="Ribbon_Load" loadImage="OnLoadImage">
+  <ribbon>
+    <tabs>
+      <tab id="tab1" label="Tabbles">
+        <group id="group1" label="Tabbles commands">
+          <button id="tagUsingTabblesButton" size="large" getLabel="GetLabel" onAction="OnAction" image="tag_using_tabbles" />
+          <button id="openInTabblesButton" size="large" getLabel="GetLabel" onAction="OnAction" image="open_in_tabbles" />
+          <button id="tabblesSearchButton" size="large" getLabel="GetLabel" onAction="OnAction" image="search" />
+          <button id="syncWithTabblesButton" size="large" getLabel="GetLabel" onAction="OnAction" image="sync_with_tabbles" />
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+  <contextMenus>
+    <contextMenu idMso="ContextMenuMailItem">
+      <menuSeparator id="tabblesMenuSingleSeparator" />
+      <button id="tagUsingTabblesMenuSingle" getVisible="IsAnythingSelected" getLabel="GetLabel" onAction="OnAction" image="tag_using_tabbles_small" />
+      <button id="openInTabblesMenu" getVisible="IsAnythingSelected" getLabel="GetLabel" onAction="OnAction" image="open_in_tabbles_small" />
+    </contextMenu>
+    <contextMenu idMso="ContextMenuMultipleItems">
+      <menuSeparator id="tabblesMenuMultipleSeparator" />
+      <button id="tagUsingTabblesMenuMultiple" getVisible="IsAnythingSelected" getLabel="GetLabel" onAction="OnAction" image="tag_using_tabbles_small" />
+    </contextMenu>
+  </contextMenus>
+</customUI>
+

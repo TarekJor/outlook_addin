@@ -1,0 +1,570 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO.Pipes;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+using Tabbles.OutlookAddIn.Common.Messages;
+using Microsoft.Office.Core;
+using Microsoft.Office.Interop.Outlook;
+using Res = Tabbles.OutlookAddIn.Properties.Resources;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+using Redemption;
+
+namespace Tabbles.OutlookAddIn
+{
+    public partial class ThisAddIn
+    {
+        private static readonly string[] OutlookCmdSeparator = new string[] { @"/select outlook:" };
+
+        private const string SearchResultsFolderName = "Tabbles search results";
+
+        private MenuManager menuManager;
+        private FolderManager folderManager;
+        private ItemManager itemManager;
+        private SyncManager syncManager;
+        private TabblesRibbon ribbon;
+
+        private RDOSession rdoSession;
+
+        private BinaryFormatter formatter = new BinaryFormatter();
+        private Thread listenerThread;
+        private NamedPipeClientStream outlookToTabblesClientPipe;
+
+        private void ThisAddIn_Startup(object sender, System.EventArgs e)
+        {
+            try
+            {
+                //string redemptionDllPath = @"D:\Projects\Tabbles\TabblesOutlookAddIn\TabblesLibrary\";
+                //RedemptionLoader.DllLocation32Bit = redemptionDllPath + "Redemption.dll";
+                //RedemptionLoader.DllLocation64Bit = redemptionDllPath + "Redemption64.dll";
+
+                Logger.Log("Outlook plugin initialized.");
+
+                this.menuManager = new MenuManager(this.Application);
+                this.menuManager.SendMessageToTabbles += OnSendMessageToTabbles;
+                if (this.ribbon != null)
+                {
+                    this.menuManager.Ribbon = this.ribbon;
+                }
+
+                this.itemManager = new ItemManager();
+
+                #region Commented out
+                //see other Commented out sections
+
+                //Application.AdvancedSearchComplete += Application_AdvancedSearchComplete;
+                #endregion
+
+                this.syncManager = new SyncManager(Application.Session.Folders);
+                this.syncManager.SendEmailCategories += this.menuManager.SendEmailCategories;
+
+                this.menuManager.StartSync += delegate
+                {
+                    StartSyncThread();
+                };
+
+                this.listenerThread = new Thread(ListenTabblesEvents);
+                this.listenerThread.Start();
+
+                if (!RegistryManager.IsSyncPerformed() && !RegistryManager.IsDontAskForSync())
+                {
+                    StartSyncThread();
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Log(ex.ToString());
+            }
+        }
+
+        private void StartSyncThread()
+        {
+            System.Action syncAction = this.syncManager.GetSyncAction();
+            syncAction();
+        }
+
+        protected override IRibbonExtensibility CreateRibbonExtensibilityObject()
+        {
+            this.ribbon = new TabblesRibbon();
+            if (this.menuManager != null)
+            {
+                this.menuManager.Ribbon = this.ribbon;
+            }
+
+            return this.ribbon;
+        }
+
+        private bool OnSendMessageToTabbles(object message)
+        {
+            return SendMessageToTabblesBlocking(message);
+        }
+
+        private bool SendMessageToTabblesBlocking(object msg, bool retry = false)
+        {
+            try
+            {
+                // I commented this block because this function should should never fail without showing an error message box.
+                //if (msg.GetType().GetCustomAttributes(typeof(SerializableAttribute), false).Length == 0)
+                //{
+                //    return false;
+                //}
+
+                if (this.outlookToTabblesClientPipe == null || retry)
+                {
+                    this.outlookToTabblesClientPipe = new NamedPipeClientStream(".", "OutlookToTabblesPipe",
+                        PipeDirection.Out, PipeOptions.Asynchronous);
+                    Logger.Log("connecting to Tabbles pipe server...");
+                    this.outlookToTabblesClientPipe.Connect(200); // blocks the thread
+                    Logger.Log("connected.");
+                }
+
+                Logger.Log("sendMessageToTabblesBlocking: serialize: " + msg.GetType().ToString());
+                this.formatter.Serialize(this.outlookToTabblesClientPipe, msg);
+                this.outlookToTabblesClientPipe.Flush();
+
+                return true;
+                //logFile.Print("sendMessageToTabblesBlocking: sent");
+            }
+            catch (TimeoutException)
+            {
+                string str = "Tabbles plugin not active. Cannot send message to Tabbles: " + msg.GetType().ToString();
+                Logger.Log(str);
+
+                try
+                {
+                    this.outlookToTabblesClientPipe.Dispose();
+                }
+                catch (System.Exception)
+                { }
+                finally
+                {
+                    this.outlookToTabblesClientPipe = null;
+                }
+
+                return false;
+            }
+            catch (System.Exception)
+            {
+                if (!retry)
+                {
+                    try
+                    {
+                        this.outlookToTabblesClientPipe.Dispose();
+                    }
+                    catch (System.Exception)
+                    { }
+                    finally
+                    {
+                        this.outlookToTabblesClientPipe = null;
+                    }
+
+                    //try once more to re-connect the pipe
+                    if (SendMessageToTabblesBlocking(msg, true))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        Logger.Log("The Tabbles plugin for Outlook is not running.");
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        private void ListenTabblesEvents()
+        {
+            NamedPipeServerStream tabblesToOutlookServerPipe;
+            while (true)
+            {
+                try
+                {
+                    tabblesToOutlookServerPipe = new NamedPipeServerStream("TabblesToOutlookPipe", PipeDirection.In);
+                }
+                catch (System.Exception ex)
+                {
+                    Logger.Log("Exception occurred while initalizing the listener pipe: " + ex.ToString());
+                    return;
+                }
+                Logger.Log("Waiting for Tabbles to connect to outlook pipe...");
+                tabblesToOutlookServerPipe.WaitForConnection(); //blocking
+
+                Logger.Log("Connection established.");
+
+                while (true)
+                {
+                    object messageObj;
+                    try
+                    {
+                        messageObj = this.formatter.Deserialize(tabblesToOutlookServerPipe);
+                        Logger.Log("Message arrived from Tabbles: " + messageObj.GetType().ToString());
+                    }
+                    catch (SerializationException ex)
+                    {
+                        string errMessage = ex.GetType().ToString() + " --- " + ex.Message;
+                        Logger.Log("Deserialization failed: " + ex.ToString());
+
+                        //MessageBox.Show(errMessage);
+
+                        tabblesToOutlookServerPipe.Dispose();
+                        break; //create server pipe again
+                    }
+
+                    lock (this.menuManager.syncObj)
+                    {
+                        if (messageObj is MsgGensTagged)
+                        {
+                            MsgGensTagged msgGensTagged = (MsgGensTagged)messageObj;
+                            if (msgGensTagged.gens != null)
+                            {
+                                foreach (string genCmdLine in msgGensTagged.gens)
+                                {
+                                    // I have to tag the same email with categories corresponding to the tags
+                                    string[] arguments = genCmdLine.Split(OutlookCmdSeparator, StringSplitOptions.None);
+
+                                    string entryId = arguments[1];
+
+                                    MailItem mail = (MailItem)Application.Session.GetItemFromID(entryId);
+
+                                    string[] currentCategories;
+                                    if (mail.Categories != null)
+                                    {
+                                        currentCategories = Utils.GetCategories(mail);
+                                    }
+                                    else
+                                    {
+                                        currentCategories = new string[0];
+                                    }
+
+                                    var tagsToAddWithColors = (from tag in msgGensTagged.tags
+                                                               where currentCategories.All(cat => cat != tag.Name)
+                                                               select tag).ToList();
+
+                                    if (!tagsToAddWithColors.Any())
+                                    {
+                                        continue;
+                                    }
+
+                                    foreach (var tag in tagsToAddWithColors)
+                                    {
+                                        Category cat;
+                                        if (!CategoryExists(tag.Name))
+                                        {
+                                            cat = this.Application.Session.Categories.Add(tag.Name);
+                                        }
+                                        else
+                                        {
+                                            cat = this.Application.Session.Categories[tag.Name];
+                                        }
+
+                                        //change colors for all categories, in case if they were changed in Tabbles
+                                        cat.Color = Utils.GetOutlookColorFromRgb(tag.Color);
+                                    }
+
+                                    var tagsToAdd = (from x in tagsToAddWithColors
+                                                     select x.Name);
+                                    IEnumerable<string> newCats = tagsToAdd.Concat<string>(currentCategories);
+                                    // todo newcats is empty: ???? check, are they
+                                    mail.Categories = newCats.Aggregate((a, b) => a + "," + b);
+
+                                    this.menuManager.InternallyChangedMailIds.Add(entryId);
+
+                                    mail.Save();
+                                }
+                            }
+                        }
+                        else if (messageObj is MsgGensUntagged)
+                        {
+                            MsgGensUntagged msgGensUntagged = (MsgGensUntagged)messageObj;
+                            if (msgGensUntagged.gens != null)
+                            {
+                                foreach (string genCmdLine in msgGensUntagged.gens)
+                                {
+                                    // I have to tag the same email with categories corresponding to the tags
+                                    string[] arguments = genCmdLine.Split(OutlookCmdSeparator, StringSplitOptions.None);
+
+                                    string entryId = arguments[1];
+
+                                    MailItem mail = (MailItem)Application.Session.GetItemFromID(entryId);
+
+                                    string[] currentCategories;
+                                    if (mail.Categories != null)
+                                    {
+                                        currentCategories = Utils.GetCategories(mail);
+                                    }
+                                    else
+                                    {
+                                        continue;
+                                    }
+
+                                    IEnumerable<string> newCats = currentCategories.Except<string>(msgGensUntagged.tags);
+
+                                    if (newCats.Any<string>() && !newCats.SequenceEqual(currentCategories))
+                                    {
+                                        mail.Categories = newCats.Aggregate((a, b) => a + "," + b);
+                                    }
+                                    else
+                                    {
+                                        continue;
+                                    }
+
+                                    this.menuManager.InternallyChangedMailIds.Add(entryId);
+
+                                    mail.Save();
+                                }
+                            }
+                        }
+                        else if (messageObj is MsgOpenMailsWithTags)
+                        {
+                            MsgOpenMailsWithTags msgOpenMailsWithTags = (MsgOpenMailsWithTags)messageObj;
+                            if (msgOpenMailsWithTags.tags != null)
+                            {
+                                SearchByCategories(msgOpenMailsWithTags.tags);
+                            }
+                        }
+                        else if (messageObj is MsgAtomKeyCreated)
+                        {
+                            MsgAtomKeyCreated msgAtomKeyCreated = (MsgAtomKeyCreated)messageObj;
+                            string categoryName = msgAtomKeyCreated.AtomKeyName;
+
+                            Category category;
+                            if (!CategoryExists(categoryName))
+                            {
+                                category = this.Application.Session.Categories.Add(categoryName);
+                            }
+                            else
+                            {
+                                category = this.Application.Session.Categories[categoryName];
+                            }
+
+                            category.Color = Utils.GetOutlookColorFromRgb(msgAtomKeyCreated.AtomKeyColor);
+
+                            Logger.Log("detected ak created: " + msgAtomKeyCreated.AtomKeyName);
+                        }
+                        else if (messageObj is MsgAtomKeysDeleted)
+                        {
+                            Logger.Log("detected ak deleted");
+                        }
+                        else
+                        {
+                            Logger.Log("message from Tabbles not recognized: " + messageObj.GetType().ToString());
+                        }
+                    }
+                }
+            }
+        }
+
+        private bool CategoryExists(string categoryName)
+        {
+            try
+            {
+                Category category =
+                    this.Application.Session.Categories[categoryName];
+
+                return category != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private void SearchByCategories(IEnumerable<string> categories)
+        {
+            Folder currentFolder = (Folder)Application.ActiveExplorer().CurrentFolder;
+
+            Folder rootFolder;
+            if (currentFolder != null)
+            {
+                rootFolder = (Folder)currentFolder.Store.GetRootFolder();
+            }
+            else
+            {
+                rootFolder = (Folder)Application.Session.Folders[1];
+            }
+
+            //example: ("urn:schemas-microsoft-com:office:office#Keywords" = 'aa' OR "urn:schemas-microsoft-com:office:office#Keywords" = 'bb')
+            int count = categories.Count<string>();
+            StringBuilder filterSql = new StringBuilder("(");
+            if (count > 0)
+            {
+                filterSql.AppendFormat("\"urn:schemas-microsoft-com:office:office#Keywords\" = '{0}'", categories.First<string>());
+            }
+            else
+            {
+                return;
+            }
+
+            for (int i = 1; i < count; i++)
+            {
+                filterSql.Append(" OR ").AppendFormat("\"urn:schemas-microsoft-com:office:office#Keywords\" = '{0}'", categories.ElementAt<string>(i));
+            }
+            filterSql.Append(")");
+
+            #region Commented out
+            //-- We use Redemption instead of these code (together with AdvancedSearchComplete event, see another Commented out section)
+            //-- Currently there is a problem with calling Results.Save() for search on a folder of non-default store
+            //See: http://social.msdn.microsoft.com/Forums/en-US/outlookdev/thread/7d1d3494-988f-4c42-a391-e732b5dfb2c6
+
+            //string folderStr = string.Format("'{0}'", rootFolder.FolderPath);
+
+            //string logMessage = string.Format("Started search with filter {0} in folder {1} ...", filter.ToString(), folderStr);
+            //this.logger.Log(logMessage);
+
+            //Application.AdvancedSearch(folderStr, filter.ToString(), true, "Tabbles categories");
+            //--------------------------------------------------------------------------------------
+            #endregion
+
+            System.Action showResultsAction = new System.Action(() =>
+                {
+                    try
+                    {
+                        if (this.rdoSession == null)
+                        {
+                            this.rdoSession = RedemptionLoader.new_RDOSession();
+                        }
+                        if (!this.rdoSession.LoggedOn)
+                        {
+                            this.rdoSession.Logon();
+                        }
+
+                        RDOStore2 store = (RDOStore2)this.rdoSession.GetStoreFromID(rootFolder.StoreID);
+
+                        store.OnSearchComplete += store_OnSearchComplete;
+
+                        RDOFolder folder = this.rdoSession.GetFolderFromID(rootFolder.EntryID, rootFolder.StoreID);
+
+                        store.Searches.AddCustom(SearchResultsFolderName, filterSql.ToString(), folder, true);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Logger.Log("Exception occurred while saving and showing search results: " + ex.ToString());
+                    }
+                });
+
+            Folders searchFolders = rootFolder.Store.GetSearchFolders();
+            if (searchFolders != null)
+            {
+                if (this.folderManager == null)
+                {
+                    this.folderManager = new FolderManager();
+                }
+
+                //in case if there is a search folder
+                this.folderManager.RemoveFolderByName(searchFolders, SearchResultsFolderName, showResultsAction);
+            }
+            else
+            {
+                //in case if there is no any search folder
+                showResultsAction();
+            }
+
+            return;
+        }
+
+        private void store_OnSearchComplete(string searchFolderID)
+        {
+            Folder searchFolder = (Folder)Application.Session.GetFolderFromID(searchFolderID);
+            if (this.rdoSession != null && this.rdoSession.LoggedOn)
+            {
+                RDOStore2 store = (RDOStore2)this.rdoSession.GetStoreFromID(searchFolder.StoreID);
+                store.OnSearchComplete -= store_OnSearchComplete;
+            }
+
+            Application.ActiveExplorer().CurrentFolder = searchFolder;
+        }
+
+        #region Commented out
+        //see comment in SearchByCategories() for the explanation
+
+        //private void Application_AdvancedSearchComplete(Search search)
+        //{
+        //    string logMessage = string.Format("Search is completed with {0} results.", search.Results.Count.ToString());
+        //    this.logger.Log(logMessage);
+
+        //    if (search.Results.Count != 0)
+        //    {
+        //        search.Save("My Results");
+        //        return;
+        //    }
+
+        //    if (search.Results.Count == 0)
+        //    {
+        //        MessageBox.Show(Res.MsgNoResultsFound);
+        //    }
+        //    else
+        //    {
+        //        Folders searchFolders = null;
+        //        MailItem aMail = search.Results[1] as MailItem;
+        //        if (aMail != null)
+        //        {
+        //            Folder aFolder = aMail.Parent as Folder;
+        //            if (aFolder != null)
+        //            {
+        //                searchFolders = aFolder.Store.GetSearchFolders();
+
+        //                System.Action showResultsAction = new System.Action(() =>
+        //                    {
+        //                        try
+        //                        {
+        //                            Folder searchResultsFolder = (Folder)search.Save(SearchResultsFolderName);
+        //                            Application.ActiveExplorer().CurrentFolder = searchResultsFolder;
+        //                        }
+        //                        catch (System.Exception ex)
+        //                        {
+        //                            this.logger.Log("Exception occurred while saving and showing search results: " + ex.ToString());
+        //                        }
+        //                    });
+
+        //                if (searchFolders != null)
+        //                {
+        //                    if (this.folderManager == null)
+        //                    {
+        //                        this.folderManager = new FolderManager();
+        //                    }
+
+        //                    //in case if there is a search folder
+        //                    this.folderManager.RemoveFolderByName(searchFolders, SearchResultsFolderName, showResultsAction);
+        //                }
+        //                else
+        //                {
+        //                    //in case if there is no any search folder
+        //                    showResultsAction();
+        //                }
+
+        //                return;
+        //            }
+        //        }
+
+        //        //give some response in any case
+        //        MessageBox.Show(Res.MsgNoResultsFound);
+        //    }
+        //}
+        #endregion
+
+        private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
+        {
+            Logger.Dispose();
+        }
+
+        #region VSTO generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InternalStartup()
+        {
+            this.Startup += new System.EventHandler(ThisAddIn_Startup);
+            this.Shutdown += new System.EventHandler(ThisAddIn_Shutdown);
+        }
+
+        #endregion
+    }
+}
