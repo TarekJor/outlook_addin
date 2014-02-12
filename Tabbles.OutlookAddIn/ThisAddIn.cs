@@ -13,7 +13,13 @@ using Microsoft.Office.Interop.Outlook;
 using Res = Tabbles.OutlookAddIn.Properties.Resources;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
-using Redemption;
+//using Outlook = Microsoft.Office.Interop.Outlook;
+
+
+#region Sujay
+//using Redemption;
+
+#endregion
 
 namespace Tabbles.OutlookAddIn
 {
@@ -29,7 +35,12 @@ namespace Tabbles.OutlookAddIn
         private SyncManager syncManager;
         private TabblesRibbon ribbon;
 
-        private RDOSession rdoSession;
+        //SUJAYXML
+      //  private XMLFileManager xmlFileManager;
+
+        #region Sujay
+        //private RDOSession rdoSession; 
+        #endregion
 
         private BinaryFormatter formatter = new BinaryFormatter();
         private Thread listenerThread;
@@ -45,6 +56,13 @@ namespace Tabbles.OutlookAddIn
 
                 Logger.Log("Outlook plugin initialized.");
 
+
+                //SUJAYXML
+               // xmlFileManager = new XMLFileManager();
+
+                // SUJAYXML
+                //xmlFileManager.CreateSettingsFile();
+
                 this.menuManager = new MenuManager(this.Application);
                 this.menuManager.SendMessageToTabbles += OnSendMessageToTabbles;
                 if (this.ribbon != null)
@@ -57,7 +75,7 @@ namespace Tabbles.OutlookAddIn
                 #region Commented out
                 //see other Commented out sections
 
-                //Application.AdvancedSearchComplete += Application_AdvancedSearchComplete;
+             //   Application.AdvancedSearchComplete += Application_AdvancedSearchComplete;
                 #endregion
 
                 this.syncManager = new SyncManager(Application.Session.Folders);
@@ -71,6 +89,13 @@ namespace Tabbles.OutlookAddIn
                 this.listenerThread = new Thread(ListenTabblesEvents);
                 this.listenerThread.Start();
 
+              //  if (!RegistryManager.IsSyncPerformed() && !RegistryManager.IsDontAskForSync())
+
+                StartSyncThread();
+
+                // SUJAYXML
+
+           //     if (!xmlFileManager.IsSyncPerformed() && !xmlFileManager.IsDontAskForSync())
                 if (!RegistryManager.IsSyncPerformed() && !RegistryManager.IsDontAskForSync())
                 {
                     StartSyncThread();
@@ -379,7 +404,11 @@ namespace Tabbles.OutlookAddIn
         {
             Folder currentFolder = (Folder)Application.ActiveExplorer().CurrentFolder;
 
+            
+                        
             Folder rootFolder;
+
+                        
             if (currentFolder != null)
             {
                 rootFolder = (Folder)currentFolder.Store.GetRootFolder();
@@ -388,6 +417,14 @@ namespace Tabbles.OutlookAddIn
             {
                 rootFolder = (Folder)Application.Session.Folders[1];
             }
+
+            #region SujayTest
+
+            String str = string.Format("Rootfolder '{0}'\t Currentfolder'{1}'", rootFolder.Name,currentFolder.Name);
+            
+            #endregion SujayTest
+
+
 
             //example: ("urn:schemas-microsoft-com:office:office#Keywords" = 'aa' OR "urn:schemas-microsoft-com:office:office#Keywords" = 'bb')
             int count = categories.Count<string>();
@@ -425,22 +462,51 @@ namespace Tabbles.OutlookAddIn
                 {
                     try
                     {
-                        if (this.rdoSession == null)
-                        {
-                            this.rdoSession = RedemptionLoader.new_RDOSession();
-                        }
-                        if (!this.rdoSession.LoggedOn)
-                        {
-                            this.rdoSession.Logon();
-                        }
+                        #region Sujay
+                        //if (this.rdoSession == null)
+                        //{
+                        //    this.rdoSession = RedemptionLoader.new_RDOSession();
+                        //}
+                        //if (!this.rdoSession.LoggedOn)
+                        //{
+                        //    this.rdoSession.Logon();
+                        //}
 
-                        RDOStore2 store = (RDOStore2)this.rdoSession.GetStoreFromID(rootFolder.StoreID);
+                        //RDOStore2 store = (RDOStore2)this.rdoSession.GetStoreFromID(rootFolder.StoreID);
 
-                        store.OnSearchComplete += store_OnSearchComplete;
+                         //oInbox = oApp.GetNamespace("MAPI").GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox);
 
-                        RDOFolder folder = this.rdoSession.GetFolderFromID(rootFolder.EntryID, rootFolder.StoreID);
+                        
+                        NameSpace olNS = this.Application.GetNamespace("MAPI");
+                        Store olStore = olNS.GetStoreFromID(rootFolder.StoreID);
 
-                        store.Searches.AddCustom(SearchResultsFolderName, filterSql.ToString(), folder, true);
+                        MAPIFolder olSearchFolder ;
+                        Search olSearch;
+                      //  olStore.
+
+                      //  Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
+
+                        string folderStr = string.Format("'{0}'", rootFolder.FolderPath);
+                        olSearch = Application.AdvancedSearch(folderStr, filterSql.ToString(), true, "Sujay Search");
+                 //     olSearchFolder = olSearch.Save("Sujay Search");
+
+                        //Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
+
+                        //store.OnSearchComplete += store_OnSearchComplete;
+                        Application.AdvancedSearchComplete +=new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
+                      
+
+                        MAPIFolder olFolderFromID = olNS.GetFolderFromID(rootFolder.EntryID, rootFolder.StoreID);
+
+                        
+                        //RDOFolder folder = this.rdoSession.GetFolderFromID(rootFolder.EntryID, rootFolder.StoreID);
+
+                        // Sujay code
+
+                        //store.Searches.AddCustom(SearchResultsFolderName, filterSql.ToString(), folder, true); 
+
+                        
+                        #endregion
                     }
                     catch (System.Exception ex)
                     {
@@ -470,88 +536,104 @@ namespace Tabbles.OutlookAddIn
 
         private void store_OnSearchComplete(string searchFolderID)
         {
-            Folder searchFolder = (Folder)Application.Session.GetFolderFromID(searchFolderID);
-            if (this.rdoSession != null && this.rdoSession.LoggedOn)
-            {
-                RDOStore2 store = (RDOStore2)this.rdoSession.GetStoreFromID(searchFolder.StoreID);
-                store.OnSearchComplete -= store_OnSearchComplete;
-            }
+            #region Sujay
+            //Folder searchFolder = (Folder)Application.Session.GetFolderFromID(searchFolderID);
+            //if (this.rdoSession != null && this.rdoSession.LoggedOn)
+            //{
+            //    RDOStore2 store = (RDOStore2)this.rdoSession.GetStoreFromID(searchFolder.StoreID);
+            //    store.OnSearchComplete -= store_OnSearchComplete;
+            //}
 
-            Application.ActiveExplorer().CurrentFolder = searchFolder;
+            //Application.ActiveExplorer().CurrentFolder = searchFolder; 
+            #endregion
         }
 
         #region Commented out
         //see comment in SearchByCategories() for the explanation
 
-        //private void Application_AdvancedSearchComplete(Search search)
-        //{
-        //    string logMessage = string.Format("Search is completed with {0} results.", search.Results.Count.ToString());
-        //    this.logger.Log(logMessage);
+        private void Application_AdvancedSearchComplete(Search search)
+        {
+            #region Sujay Comments
+            //string logMessage = string.Format("Search is completed with {0} results.", search.Results.Count.ToString());
+            ////this.logger.Log(logMessage);
 
-        //    if (search.Results.Count != 0)
-        //    {
-        //        search.Save("My Results");
-        //        return;
-        //    }
+            //if (search.Results.Count != 0)
+            //{
+            //    search.Save("Sujay Search");
+            //    return;
+            //}
 
-        //    if (search.Results.Count == 0)
-        //    {
-        //        MessageBox.Show(Res.MsgNoResultsFound);
-        //    }
-        //    else
-        //    {
-        //        Folders searchFolders = null;
-        //        MailItem aMail = search.Results[1] as MailItem;
-        //        if (aMail != null)
-        //        {
-        //            Folder aFolder = aMail.Parent as Folder;
-        //            if (aFolder != null)
-        //            {
-        //                searchFolders = aFolder.Store.GetSearchFolders();
+            if (search.Results.Count == 0)
+            {
+                MessageBox.Show(Res.MsgNoResultsFound);
+            }
+            else
+            {
+                //search.Save("Sujay Search");
 
-        //                System.Action showResultsAction = new System.Action(() =>
-        //                    {
-        //                        try
-        //                        {
-        //                            Folder searchResultsFolder = (Folder)search.Save(SearchResultsFolderName);
-        //                            Application.ActiveExplorer().CurrentFolder = searchResultsFolder;
-        //                        }
-        //                        catch (System.Exception ex)
-        //                        {
-        //                            this.logger.Log("Exception occurred while saving and showing search results: " + ex.ToString());
-        //                        }
-        //                    });
+                Folders searchFolders = null;
+                MailItem aMail = search.Results[1] as MailItem;
+                if (aMail != null)
+                {
+                    Folder aFolder = aMail.Parent as Folder;
+                    if (aFolder != null)
+                    {
+                        searchFolders = aFolder.Store.GetSearchFolders();
 
-        //                if (searchFolders != null)
-        //                {
-        //                    if (this.folderManager == null)
-        //                    {
-        //                        this.folderManager = new FolderManager();
-        //                    }
+                        System.Action showResultsAction = new System.Action(() =>
+                            {
+                                try
+                                {
+                                    Folder searchResultsFolder = (Folder)search.Save(SearchResultsFolderName);
+                                    Application.ActiveExplorer().CurrentFolder = searchResultsFolder;
+                                }
+                                catch (System.Exception ex)
+                                {
+                                  //  this.logger.Log("Exception occurred while saving and showing search results: " + ex.ToString());
+                                }
+                            });
 
-        //                    //in case if there is a search folder
-        //                    this.folderManager.RemoveFolderByName(searchFolders, SearchResultsFolderName, showResultsAction);
-        //                }
-        //                else
-        //                {
-        //                    //in case if there is no any search folder
-        //                    showResultsAction();
-        //                }
+                        if (searchFolders != null)
+                        {
+                            if (this.folderManager == null)
+                            {
+                                this.folderManager = new FolderManager();
+                            }
 
-        //                return;
-        //            }
-        //        }
+                            //in case if there is a search folder
+                            this.folderManager.RemoveFolderByName(searchFolders, SearchResultsFolderName, showResultsAction);
+                        }
+                        else
+                        {
+                            //in case if there is no any search folder
+                            showResultsAction();
+                        }
 
-        //        //give some response in any case
-        //        MessageBox.Show(Res.MsgNoResultsFound);
-        //    }
-        //}
+                        return;
+                    }
+                }
+
+                //give some response in any case
+                MessageBox.Show(Res.MsgNoResultsFound);
+            } 
+            #endregion
+
+            MessageBox.Show(" In advanced search");
+
+            Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
+
+          //  Application.ActiveExplorer().CurrentView = searchFolder.Application.ActiveExplorer().CurrentView;//  = searchFolder.f;
+        }
         #endregion
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
+
+            Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
             Logger.Dispose();
         }
+
+
 
         #region VSTO generated code
 

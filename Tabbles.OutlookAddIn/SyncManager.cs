@@ -15,6 +15,9 @@ namespace Tabbles.OutlookAddIn
         private const string CategorizedMailItemFilter = @"@SQL=""urn:schemas-microsoft-com:office:office#Keywords"" like '%'";
         private const string MessageClassIpmNote = "IPM.Note";
 
+        // SUJAYXML
+       // private XMLFileManager xmlFileManager;
+
         private Folders rootFolders;
 
         private bool cancel;
@@ -30,6 +33,9 @@ namespace Tabbles.OutlookAddIn
         public SyncManager(Folders rootFolders)
         {
             this.rootFolders = rootFolders;
+
+            // SUJAYXML
+           // xmlFileManager = new XMLFileManager();
         }
 
         public System.Action GetSyncAction()
@@ -50,12 +56,18 @@ namespace Tabbles.OutlookAddIn
                     CancelText = Res.LabelCancel,
                     Message = Res.MsgDoYouWantToSync,
                     DontShowAgainMessage = Res.MsgDontAskAgain,
-                    WasDontAskAgain = RegistryManager.IsDontAskForSync()
+
+                     //SUJAYXML
+                  //  WasDontAskAgain = xmlFileManager.IsDontAskForSync()
+                   //  WasDontAskAgain = RegistryManager.IsDontAskForSync()
                 };
 
                 bool? answer = confirmationWindow.ShowDialog();
 
                 RegistryManager.SetDontAskForSync(confirmationWindow.IsDontAskAgain);
+
+                //SUJAYXML
+                //xmlFileManager.SetDontAskForSync(confirmationWindow.IsDontAskAgain);
 
                 if (answer.HasValue && answer.Value)
                 {
@@ -91,6 +103,10 @@ namespace Tabbles.OutlookAddIn
 
                 InProcess = false;
                 RegistryManager.SetSyncPerformed(true);
+
+                // SUJAYXML
+               // xmlFileManager.SetSyncPerformed(true);
+
             }
             catch (System.Exception)
             {

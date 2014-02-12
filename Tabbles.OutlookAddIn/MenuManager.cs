@@ -24,6 +24,11 @@ namespace Tabbles.OutlookAddIn
 
     class MenuManager
     {
+
+        // SUJAYXML
+      //   private XMLFileManager xmlFileManager;
+
+
         private const string CommandBarName = "Tabbles Toolbar";
         private const string ButtonIdTagUsingTabbles = "tagUsingTabbles";
         private const string ButtonIdOpenInTabbles = "openInTabbles";
@@ -80,7 +85,11 @@ namespace Tabbles.OutlookAddIn
                 };
                 value.SyncWithTabbles += (sender, args) =>
                 {
-                    RegistryManager.SetSyncPerformed(false);
+                    //RegistryManager.SetSyncPerformed(false);
+
+                    // SUJAYXML
+                    //xmlFileManager.SetSyncPerformed(false);
+
                     if (StartSync != null)
                     {
                         StartSync();
@@ -95,6 +104,9 @@ namespace Tabbles.OutlookAddIn
 
         public MenuManager(Application outlookApp)
         {
+            // SUJAYXML
+            //xmlFileManager = new XMLFileManager();
+
             this.outlookApp = outlookApp;
             this.outlookVersion = Utils.ParseMajorVersion(outlookApp);
             this.outlookPrefix = Utils.GetOutlookPrefix();
