@@ -1,9 +1,0 @@
-C:\Users\Maurizio\Documents\Visual Studio 2010\Projects\tabblesOutlookTIgran\Tabbles.OutlookPlugIn\bin\Release\Tabbles.OutlookPlugIn.dll
-C:\Users\Maurizio\Documents\Visual Studio 2010\Projects\tabblesOutlookTIgran\Tabbles.OutlookPlugIn\bin\Release\Tabbles.OutlookPlugIn.pdb
-C:\Users\Maurizio\Documents\Visual Studio 2010\Projects\tabblesOutlookTIgran\Tabbles.OutlookPlugIn\bin\Release\TabblesApi.dll
-C:\Users\Maurizio\Documents\Visual Studio 2010\Projects\tabblesOutlookTIgran\Tabbles.OutlookPlugIn\bin\Release\Tabbles_decl.dll
-C:\Users\Maurizio\Documents\Visual Studio 2010\Projects\tabblesOutlookTIgran\Tabbles.OutlookPlugIn\bin\Release\Tabbles_logic.dll
-C:\Users\Maurizio\Documents\Visual Studio 2010\Projects\tabblesOutlookTIgran\Tabbles.OutlookPlugIn\obj\Release\ResolveAssemblyReference.cache
-C:\Users\Maurizio\Documents\Visual Studio 2010\Projects\tabblesOutlookTIgran\Tabbles.OutlookPlugIn\obj\Release\Tabbles.OutlookPlugIn.dll
-C:\Users\Maurizio\Documents\Visual Studio 2010\Projects\tabblesOutlookTIgran\Tabbles.OutlookPlugIn\obj\Release\Tabbles.OutlookPlugIn.pdb
-C:\Users\Maurizio\Documents\Visual Studio 2010\Projects\tabblesOutlookTIgran\Tabbles.OutlookPlugIn\bin\Release\WpfControlLibrary1.dll

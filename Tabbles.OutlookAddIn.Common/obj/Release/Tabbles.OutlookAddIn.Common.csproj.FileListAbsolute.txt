@@ -1,5 +1,0 @@
-C:\Users\Maurizio\Documents\Visual Studio 2010\Projects\tabblesOutlookTIgran\Tabbles.OutlookAddIn.Common\bin\Release\Tabbles.OutlookAddIn.Common.dll
-C:\Users\Maurizio\Documents\Visual Studio 2010\Projects\tabblesOutlookTIgran\Tabbles.OutlookAddIn.Common\bin\Release\Tabbles.OutlookAddIn.Common.pdb
-C:\Users\Maurizio\Documents\Visual Studio 2010\Projects\tabblesOutlookTIgran\Tabbles.OutlookAddIn.Common\obj\Release\ResolveAssemblyReference.cache
-C:\Users\Maurizio\Documents\Visual Studio 2010\Projects\tabblesOutlookTIgran\Tabbles.OutlookAddIn.Common\obj\Release\Tabbles.OutlookAddIn.Common.dll
-C:\Users\Maurizio\Documents\Visual Studio 2010\Projects\tabblesOutlookTIgran\Tabbles.OutlookAddIn.Common\obj\Release\Tabbles.OutlookAddIn.Common.pdb
