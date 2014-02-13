@@ -63,7 +63,7 @@ namespace Tabbles.OutlookAddIn
                 //xmlFileManager.CreateSettingsFile();
 
                 this.menuManager = new MenuManager(this.Application);
-                this.menuManager.SendMessageToTabbles += OnSendMessageToTabbles;
+                //this.menuManager.SendMessageToTabbles += OnSendMessageToTabbles;
                 if (this.ribbon != null)
                 {
                     this.menuManager.Ribbon = this.ribbon;
@@ -123,85 +123,87 @@ namespace Tabbles.OutlookAddIn
             return this.ribbon;
         }
 
-        private bool OnSendMessageToTabbles(object message)
-        {
-            return SendMessageToTabblesBlocking(message);
-        }
+        //private bool OnSendMessageToTabbles(object message)
+        //{
+        //    return SendMessageToTabblesBlocking(message);
+        //}
 
-        private bool SendMessageToTabblesBlocking(object msg, bool retry = false)
-        {
-            try
-            {
-                // I commented this block because this function should should never fail without showing an error message box.
-                //if (msg.GetType().GetCustomAttributes(typeof(SerializableAttribute), false).Length == 0)
-                //{
-                //    return false;
-                //}
+        //private bool SendMessageToTabblesBlocking(object msg, bool retry = false)
+        //{
+        //    try
+        //    {
+        //        // I commented this block because this function should should never fail without showing an error message box.
+        //        //if (msg.GetType().GetCustomAttributes(typeof(SerializableAttribute), false).Length == 0)
+        //        //{
+        //        //    return false;
+        //        //}
 
-                if (this.outlookToTabblesClientPipe == null || retry)
-                {
-                    this.outlookToTabblesClientPipe = new NamedPipeClientStream(".", "OutlookToTabblesPipe",
-                        PipeDirection.Out, PipeOptions.Asynchronous);
-                    Logger.Log("connecting to Tabbles pipe server...");
-                    this.outlookToTabblesClientPipe.Connect(200); // blocks the thread
-                    Logger.Log("connected.");
-                }
+        //        if (this.outlookToTabblesClientPipe == null || retry)
+        //        {
+        //            this.outlookToTabblesClientPipe = new NamedPipeClientStream(".", "OutlookToTabblesPipe",
+        //                PipeDirection.Out, PipeOptions.Asynchronous);
+        //            Logger.Log("connecting to Tabbles pipe server...");
+        //            this.outlookToTabblesClientPipe.Connect(200); // blocks the thread
+        //            Logger.Log("connected.");
+        //        }
 
-                Logger.Log("sendMessageToTabblesBlocking: serialize: " + msg.GetType().ToString());
-                this.formatter.Serialize(this.outlookToTabblesClientPipe, msg);
-                this.outlookToTabblesClientPipe.Flush();
+        //        Logger.Log("sendMessageToTabblesBlocking: serialize: " + msg.GetType().ToString());
+        //        this.formatter.Serialize(this.outlookToTabblesClientPipe, msg);
+        //        this.outlookToTabblesClientPipe.Flush();
 
-                return true;
-                //logFile.Print("sendMessageToTabblesBlocking: sent");
-            }
-            catch (TimeoutException)
-            {
-                string str = "Tabbles plugin not active. Cannot send message to Tabbles: " + msg.GetType().ToString();
-                Logger.Log(str);
+        //        return true;
+        //        //logFile.Print("sendMessageToTabblesBlocking: sent");
+        //    }
+        //    catch (TimeoutException)
+        //    {
+        //        string str = "Tabbles plugin not active. Cannot send message to Tabbles: " + msg.GetType().ToString();
+        //        Logger.Log(str);
 
-                try
-                {
-                    this.outlookToTabblesClientPipe.Dispose();
-                }
-                catch (System.Exception)
-                { }
-                finally
-                {
-                    this.outlookToTabblesClientPipe = null;
-                }
+        //        try
+        //        {
+        //            this.outlookToTabblesClientPipe.Dispose();
+        //        }
+        //        catch (System.Exception)
+        //        { }
+        //        finally
+        //        {
+        //            this.outlookToTabblesClientPipe = null;
+        //        }
 
-                return false;
-            }
-            catch (System.Exception)
-            {
-                if (!retry)
-                {
-                    try
-                    {
-                        this.outlookToTabblesClientPipe.Dispose();
-                    }
-                    catch (System.Exception)
-                    { }
-                    finally
-                    {
-                        this.outlookToTabblesClientPipe = null;
-                    }
+        //        return false;
+        //    }
+        //    catch (System.Exception)
+        //    {
+        //        if (!retry)
+        //        {
+        //            try
+        //            {
+        //                this.outlookToTabblesClientPipe.Dispose();
+        //            }
+        //            catch (System.Exception)
+        //            { }
+        //            finally
+        //            {
+        //                this.outlookToTabblesClientPipe = null;
+        //            }
 
-                    //try once more to re-connect the pipe
-                    if (SendMessageToTabblesBlocking(msg, true))
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        Logger.Log("The Tabbles plugin for Outlook is not running.");
-                    }
-                }
+        //            //try once more to re-connect the pipe
+        //            if (SendMessageToTabblesBlocking(msg, true))
+        //            {
+        //                return true;
+        //            }
+        //            else
+        //            {
+        //                Logger.Log("The Tabbles plugin for Outlook is not running.");
+        //            }
+        //        }
 
-                return false;
-            }
-        }
+        //        return false;
+        //    }
+        //}
 
+        
+        
         private void ListenTabblesEvents()
         {
             NamedPipeServerStream tabblesToOutlookServerPipe;
@@ -209,7 +211,7 @@ namespace Tabbles.OutlookAddIn
             {
                 try
                 {
-                    tabblesToOutlookServerPipe = new NamedPipeServerStream("TabblesToOutlookPipe", PipeDirection.In);
+                    tabblesToOutlookServerPipe = new NamedPipeServerStream("TABBLES_PIPE_TO_OUTLOOK", PipeDirection.In);
                 }
                 catch (System.Exception ex)
                 {

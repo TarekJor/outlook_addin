@@ -16,7 +16,7 @@ using System.Diagnostics;
 
 namespace Tabbles.OutlookAddIn
 {
-    public delegate bool SendMessageToTabblesHandler(object message);
+
 
     public delegate bool IsAnyEmailSelectedHandler();
 
@@ -35,7 +35,7 @@ namespace Tabbles.OutlookAddIn
         private const string PropertyNameCategories = "Categories";
         private const string PropertyNameFlagRequest = "FlagRequest";
 
-        public event SendMessageToTabblesHandler SendMessageToTabbles;
+
         public event System.Action StartSync;
 
         public readonly object syncObj = new object();
@@ -203,12 +203,13 @@ namespace Tabbles.OutlookAddIn
                         return;
                     }
 
-                    if (!CheckTabblesRunning())
-                    {
-                        cancel = true;
-                        WinForms.MessageBox.Show(Res.MsgTabblesIsNotRunning, Res.MsgCaptionTabblesAddIn);
-                        return;
-                    }
+                    // todo maurizio
+                    //if (!CheckTabblesRunning())
+                    //{
+                    //    cancel = true;
+                    //    WinForms.MessageBox.Show(Res.MsgTabblesIsNotRunning, Res.MsgCaptionTabblesAddIn);
+                    //    return;
+                    //}
 
                     cancel = true;
                     this.trackItemMove = false;
@@ -218,7 +219,7 @@ namespace Tabbles.OutlookAddIn
                         MailItem mailAfterMove = (MailItem)mail.Move(target);
                         Utils.ReleaseComObject(mailAfterMove);
                         //WinForms.MessageBox.Show(mail.EntryID + "\n\n" + mailAfterMove.EntryID);
-                        //TODO: Maurizio: call Tabbles API at this point
+                        //TODO Maurizio: call Tabbles API at this point
                     }
                     this.trackItemMove = true;
 
@@ -247,37 +248,39 @@ namespace Tabbles.OutlookAddIn
             }
         }
 
-        public bool CheckTabblesRunning()
-        {
-            if (SendMessageToTabbles == null)
-            {
-                return false;
-            }
+        //public bool CheckTabblesRunning()
+        //{
+        //    if (SendMessageToTabbles == null)
+        //    {
+        //        return false;
+        //    }
 
-            return SendMessageToTabbles(new INeedToPingTabbles());
-        }
+        //    return SendMessageToTabbles(new INeedToPingTabbles());
+        //}
 
         public void SendEmailCategories(List<string> entryIds)
         {
-            if (SendMessageToTabbles == null)
-            {
-                return;
-            }
 
-            foreach (string entryId in entryIds)
-            {
-                try
-                {
-                    MailItem mail = this.outlookApp.Session.GetItemFromID(entryId) as MailItem;
-                    if (mail != null)
-                    {
-                        SendCategoriesToTabbles(mail);
-                    }
-                }
-                catch (System.Exception)
-                {
-                }
-            }
+            // todo
+            //if (SendMessageToTabbles == null)
+            //{
+            //    return;
+            //}
+
+            //foreach (string entryId in entryIds)
+            //{
+            //    try
+            //    {
+            //        MailItem mail = this.outlookApp.Session.GetItemFromID(entryId) as MailItem;
+            //        if (mail != null)
+            //        {
+            //            SendCategoriesToTabbles(mail);
+            //        }
+            //    }
+            //    catch (System.Exception)
+            //    {
+            //    }
+            //}
         }
         #endregion
 
@@ -397,24 +400,25 @@ namespace Tabbles.OutlookAddIn
 
         private void TagUsingTabbles(List<MailItem> mails)
         {
-            if (SendMessageToTabbles == null)
-            {
-                return;
-            }
+            // todo 
+            //if (SendMessageToTabbles == null)
+            //{
+            //    return;
+            //}
 
-            var emails = (from MailItem mi in this.selectedMails
-                          select new Generic
-                          {
-                              name = mi.Subject,
-                              commandLine = this.outlookPrefix + mi.EntryID,
-                              icon = new IconOther(),
-                              showCommandLine = false
-                          }).ToList();
+            //var emails = (from MailItem mi in this.selectedMails
+            //              select new Generic
+            //              {
+            //                  name = mi.Subject,
+            //                  commandLine = this.outlookPrefix + mi.EntryID,
+            //                  icon = new IconOther(),
+            //                  showCommandLine = false
+            //              }).ToList();
 
-            SendMessageToTabbles(new INeedToTagGenericsWithTabblesQuickTagDialog()
-            {
-                gens = emails
-            });
+            //SendMessageToTabbles(new INeedToTagGenericsWithTabblesQuickTagDialog()
+            //{
+            //    gens = emails
+            //});
         }
 
         private void openInTabblesMenuButton_Click(CommandBarButton Ctrl, ref bool CancelDefault)
@@ -440,22 +444,23 @@ namespace Tabbles.OutlookAddIn
 
         private void OpenInTabbles(MailItem mail)
         {
-            if (SendMessageToTabbles == null)
-            {
-                return;
-            }
+            // todo
+            //if (SendMessageToTabbles == null)
+            //{
+            //    return;
+            //}
 
-            var email = new Generic
-            {
-                name = mail.Subject,
-                commandLine = this.outlookPrefix + mail.EntryID,
-                icon = new IconOther(),
-                showCommandLine = false
-            };
-            SendMessageToTabbles(new INeedToOpenGenericInTabbles()
-            {
-                gen = email
-            });
+            //var email = new Generic
+            //{
+            //    name = mail.Subject,
+            //    commandLine = this.outlookPrefix + mail.EntryID,
+            //    icon = new IconOther(),
+            //    showCommandLine = false
+            //};
+            //SendMessageToTabbles(new INeedToOpenGenericInTabbles()
+            //{
+            //    gen = email
+            //});
         }
 
         private void tabblesSearch_Click(CommandBarButton Ctrl, ref bool CancelDefault)
@@ -465,12 +470,13 @@ namespace Tabbles.OutlookAddIn
 
         private void TabblesSearch()
         {
-            if (SendMessageToTabbles == null)
-            {
-                return;
-            }
+            // todo
+            //if (SendMessageToTabbles == null)
+            //{
+            //    return;
+            //}
 
-            SendMessageToTabbles(new INeedToOpenSearch());
+            //SendMessageToTabbles(new INeedToOpenSearch());
         }
 
         private void syncWithTabbles_Click(CommandBarButton Ctrl, ref bool CancelDefault)
@@ -571,7 +577,7 @@ namespace Tabbles.OutlookAddIn
                     }
                     else
                     {
-                        if (SendCategoriesToTabbles(mail))
+                        SendCategoriesToTabbles(mail);
                         {
                             //this.onceItemChanged.Add(mailId);
                         }
@@ -580,12 +586,8 @@ namespace Tabbles.OutlookAddIn
             }
         }
 
-        private bool SendCategoriesToTabbles(MailItem mail)
+        private void SendCategoriesToTabbles(MailItem mail)
         {
-            if (SendMessageToTabbles == null)
-            {
-                return false;
-            }
 
             var categoriesWithColors = new Dictionary<string, string>();
             string[] categories = Utils.GetCategories(mail);
@@ -611,19 +613,21 @@ namespace Tabbles.OutlookAddIn
                 categoriesWithColors[mail.FlagRequest] = Utils.GetRgbForFlagRequest(mail.FlagRequest);
             }
 
-            var message = new GenericChangedSomeCategory
-            {
-                categoriesWithColors = categoriesWithColors,
-                gen = new Generic
-                {
-                    name = mail.Subject,
-                    commandLine = this.outlookPrefix + mail.EntryID,
-                    icon = new IconOther(),
-                    showCommandLine = false
-                }
-            };
+            // todo
 
-            return SendMessageToTabbles(message);
+            //var message = new GenericChangedSomeCategory
+            //{
+            //    categoriesWithColors = categoriesWithColors,
+            //    gen = new Generic
+            //    {
+            //        name = mail.Subject,
+            //        commandLine = this.outlookPrefix + mail.EntryID,
+            //        icon = new IconOther(),
+            //        showCommandLine = false
+            //    }
+            //};
+
+            //return SendMessageToTabbles(message);
         }
 
         /// <summary>
