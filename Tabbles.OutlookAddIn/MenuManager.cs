@@ -13,7 +13,9 @@ using stdole;
 using System.Drawing;
 using System.Threading;
 using System.Diagnostics;
+using System.IO.Pipes;
 
+using System.Xml.Linq;
 namespace Tabbles.OutlookAddIn
 {
 
@@ -24,7 +26,7 @@ namespace Tabbles.OutlookAddIn
     {
 
         // SUJAYXML
-      //   private XMLFileManager xmlFileManager;
+        //   private XMLFileManager xmlFileManager;
 
 
         private const string CommandBarName = "Tabbles Toolbar";
@@ -69,7 +71,7 @@ namespace Tabbles.OutlookAddIn
         {
             set
             {
-                //value.TagUsingTabbles += (sender, args) =>
+                //value.TagEmailsWithTabbles += (sender, args) =>
                 //{
                 //    TagSelectedEmailsWithTabbles();
                 //};
@@ -386,7 +388,7 @@ namespace Tabbles.OutlookAddIn
         {
             if (IsAnyEmailSelected(true))
             {
-                TagUsingTabbles(this.selectedMails);
+                TagEmailsWithTabbles(this.selectedMails);
             }
         }
 
@@ -394,12 +396,34 @@ namespace Tabbles.OutlookAddIn
         {
             if (IsAnyEmailSelected(false))
             {
-                TagUsingTabbles(this.selectedMails);
+                TagEmailsWithTabbles(this.selectedMails);
             }
         }
 
-        public void TagUsingTabbles(List<MailItem> mails)
+        public static void sendXmlToTabbles(XDocument xdoc)
         {
+            // todo add sync? only one thread at a time must do this.
+            using (var pc = new NamedPipeClientStream("TABBLES_PIPE_FROM_OUTLOOK"))
+            {
+                pc.Connect(500);
+                xdoc.Save(pc);
+
+            }
+
+        }
+
+
+        public void TagEmailsWithTabbles(List<MailItem> mails)
+        {
+            var emails = (from m in mails
+                          let atSubj = new XAttribute("subject", m.Subject)
+                          let atCmdLine = new XAttribute("command_line", outlookPrefix + m.EntryID)
+                          let ats = new[] { atSubj, atCmdLine }
+                          select new XElement("email", ats)).ToArray();
+            var xelRoot = new XElement("i_need_to_tag_emails", emails);
+            var xdoc = new XDocument(xelRoot);
+            sendXmlToTabbles(xdoc);
+
             // todo 
             //if (SendMessageToTabbles == null)
             //{

@@ -35,7 +35,7 @@ namespace Tabbles.OutlookAddIn
     {
         private Office.IRibbonUI ribbon;
 
-        //public event EventHandler TagUsingTabbles;
+        //public event EventHandler TagEmailsWithTabbles;
         //public event EventHandler OpenInTabbles;
         //public event EventHandler TabblesSearch;
         //public event EventHandler SyncWithTabbles;
