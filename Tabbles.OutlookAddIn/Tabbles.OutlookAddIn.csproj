@@ -332,12 +332,6 @@
     <None Include="Icons\tag_using_tabbles_32.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Tabbles.OutlookAddIn.Common\Tabbles.OutlookAddIn.Common.csproj">
-      <Project>{0C4C8BAF-6F6A-4004-AB5F-5AEA56DDE9DF}</Project>
-      <Name>Tabbles.OutlookAddIn.Common</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Icons\sync_with_tabbles_16.bmp" />
   </ItemGroup>
   <ItemGroup>

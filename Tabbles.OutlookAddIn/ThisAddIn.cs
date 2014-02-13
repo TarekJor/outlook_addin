@@ -7,7 +7,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Tabbles.OutlookAddIn.Common.Messages;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Outlook;
 using Res = Tabbles.OutlookAddIn.Properties.Resources;
