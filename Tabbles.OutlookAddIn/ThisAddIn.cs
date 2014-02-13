@@ -80,25 +80,25 @@ namespace Tabbles.OutlookAddIn
                 this.syncManager = new SyncManager(Application.Session.Folders);
                 this.syncManager.SendEmailCategories += this.menuManager.SendEmailCategories;
 
-                this.menuManager.StartSync += delegate
-                {
-                    StartSyncThread();
-                };
+                //this.menuManager.StartSync += delegate
+                //{
+                //    StartSyncThread();
+                //};
 
                 this.listenerThread = new Thread(ListenTabblesEvents);
                 this.listenerThread.Start();
 
                 //  if (!RegistryManager.IsSyncPerformed() && !RegistryManager.IsDontAskForSync())
 
-                StartSyncThread();
+                //StartSyncThread();
 
                 // SUJAYXML
 
                 //     if (!xmlFileManager.IsSyncPerformed() && !xmlFileManager.IsDontAskForSync())
-                if (!RegistryManager.IsSyncPerformed() && !RegistryManager.IsDontAskForSync())
-                {
-                    StartSyncThread();
-                }
+                //if (!RegistryManager.IsSyncPerformed() && !RegistryManager.IsDontAskForSync())
+                //{
+                //    StartSyncThread();
+                //}
             }
             catch (System.Exception ex)
             {

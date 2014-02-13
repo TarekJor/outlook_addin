@@ -36,7 +36,7 @@ namespace Tabbles.OutlookAddIn
         private const string PropertyNameFlagRequest = "FlagRequest";
 
 
-        public event System.Action StartSync;
+        //public event System.Action StartSync;
 
         //public readonly object syncObj = new object();
 
@@ -481,10 +481,11 @@ namespace Tabbles.OutlookAddIn
 
         private void syncWithTabbles_Click(CommandBarButton Ctrl, ref bool CancelDefault)
         {
-            if (StartSync != null)
-            {
-                StartSync();
-            }
+            // todo implem
+            //if (StartSync != null)
+            //{
+            //    StartSync();
+            //}
         }
 
         private bool IsAnyEmailSelected(bool fillAtFirst)
