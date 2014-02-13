@@ -35,13 +35,14 @@ namespace Tabbles.OutlookAddIn
     {
         private Office.IRibbonUI ribbon;
 
-        public event EventHandler TagUsingTabbles;
-        public event EventHandler OpenInTabbles;
-        public event EventHandler TabblesSearch;
-        public event EventHandler SyncWithTabbles;
+        //public event EventHandler TagUsingTabbles;
+        //public event EventHandler OpenInTabbles;
+        //public event EventHandler TabblesSearch;
+        //public event EventHandler SyncWithTabbles;
 
-        public event IsAnyEmailSelectedHandler IsAnyEmailSelected;
+        //public event IsAnyEmailSelectedHandler IsAnyEmailSelected;
 
+        MenuManager mMenuManager;
         public TabblesRibbon()
         {
         }
@@ -80,29 +81,26 @@ namespace Tabbles.OutlookAddIn
                 case "tagUsingTabblesButton":
                 case "tagUsingTabblesMenuSingle":
                 case "tagUsingTabblesMenuMultiple":
-                    if (TagUsingTabbles != null)
-                    {
-                        TagUsingTabbles(control, EventArgs.Empty);
-                    }
+                    mMenuManager.TagSelectedEmailsWithTabbles();
                     break;
                 case "openInTabblesButton":
                 case "openInTabblesMenu":
-                    if (OpenInTabbles != null)
-                    {
-                        OpenInTabbles(control, EventArgs.Empty);
-                    }
+                    //if (OpenInTabbles != null)
+                    //{
+                    //    OpenInTabbles(control, EventArgs.Empty);
+                    //}
                     break;
                 case "tabblesSearchButton":
-                    if (TabblesSearch != null)
-                    {
-                        TabblesSearch(control, EventArgs.Empty);
-                    }
+                    //if (TabblesSearch != null)
+                    //{
+                    //    TabblesSearch(control, EventArgs.Empty);
+                    //}
                     break;
                 case "syncWithTabblesButton":
-                    if (SyncWithTabbles != null)
-                    {
-                        SyncWithTabbles(control, EventArgs.Empty);
-                    }
+                    //if (SyncWithTabbles != null)
+                    //{
+                    //    SyncWithTabbles(control, EventArgs.Empty);
+                    //}
                     break;
                 default:
                     break;
@@ -160,10 +158,10 @@ namespace Tabbles.OutlookAddIn
             return image;
         }
 
-        public bool IsAnythingSelected(Office.IRibbonControl control)
-        {
-            return IsAnyEmailSelected != null && IsAnyEmailSelected();
-        }
+        //public bool IsAnythingSelected(Office.IRibbonControl control)
+        //{
+        //    return IsAnyEmailSelected != null && IsAnyEmailSelected();
+        //}
 
         #endregion
 

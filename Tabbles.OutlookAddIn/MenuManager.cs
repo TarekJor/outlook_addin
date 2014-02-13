@@ -38,7 +38,7 @@ namespace Tabbles.OutlookAddIn
 
         public event System.Action StartSync;
 
-        public readonly object syncObj = new object();
+        //public readonly object syncObj = new object();
 
         private OutlookVersion outlookVersion;
         private string outlookPrefix;
@@ -69,34 +69,34 @@ namespace Tabbles.OutlookAddIn
         {
             set
             {
-                value.TagUsingTabbles += (sender, args) =>
-                {
-                    TagUsingTabblesButtonClick();
-                };
-                value.OpenInTabbles += (sender, args) =>
-                {
-                    OpenInTabblesButtonClick();
-                };
-                value.TabblesSearch += (sender, args) =>
-                {
-                    TabblesSearch();
-                };
-                value.SyncWithTabbles += (sender, args) =>
-                {
-                    //RegistryManager.SetSyncPerformed(false);
+                //value.TagUsingTabbles += (sender, args) =>
+                //{
+                //    TagSelectedEmailsWithTabbles();
+                //};
+                //value.OpenInTabbles += (sender, args) =>
+                //{
+                //    OpenInTabblesButtonClick();
+                //};
+                //value.TabblesSearch += (sender, args) =>
+                //{
+                //    TabblesSearch();
+                //};
+                //value.SyncWithTabbles += (sender, args) =>
+                //{
+                //    //RegistryManager.SetSyncPerformed(false);
 
-                    // SUJAYXML
-                    //xmlFileManager.SetSyncPerformed(false);
+                //    // SUJAYXML
+                //    //xmlFileManager.SetSyncPerformed(false);
 
-                    if (StartSync != null)
-                    {
-                        StartSync();
-                    }
-                };
-                value.IsAnyEmailSelected += () =>
-                {
-                    return IsAnyEmailSelected(true);
-                };
+                //    if (StartSync != null)
+                //    {
+                //        StartSync();
+                //    }
+                //};
+                //value.IsAnyEmailSelected += () =>
+                //{
+                //    return IsAnyEmailSelected(true);
+                //};
             }
         }
 
@@ -379,10 +379,10 @@ namespace Tabbles.OutlookAddIn
 
         private void tagUsingTabblesMenuButton_Click(CommandBarButton Ctrl, ref bool CancelDefault)
         {
-            TagUsingTabblesButtonClick();
+            TagSelectedEmailsWithTabbles();
         }
 
-        private void TagUsingTabblesButtonClick()
+        public void TagSelectedEmailsWithTabbles()
         {
             if (IsAnyEmailSelected(true))
             {
@@ -398,7 +398,7 @@ namespace Tabbles.OutlookAddIn
             }
         }
 
-        private void TagUsingTabbles(List<MailItem> mails)
+        public void TagUsingTabbles(List<MailItem> mails)
         {
             // todo 
             //if (SendMessageToTabbles == null)
@@ -563,7 +563,7 @@ namespace Tabbles.OutlookAddIn
             {
                 MailItem mail = (MailItem)item;
                 string mailId = mail.EntryID;
-                lock (this.syncObj)
+                //lock (this.syncObj)
                 {
                     //if (this.onceItemChanged.Contains(mailId))
                     //{
