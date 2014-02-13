@@ -415,6 +415,10 @@ namespace Tabbles.OutlookAddIn
             {
                 WinForms.MessageBox.Show("Tabbles is not running.");
             }
+            //catch(UnauthorizedAccessException)
+            //{
+            //    WinForms.MessageBox.Show("No permission to send message to tabbles' pipe.");
+            //}
 
         }
 
