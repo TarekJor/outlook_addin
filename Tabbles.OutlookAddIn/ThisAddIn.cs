@@ -63,11 +63,9 @@ namespace Tabbles.OutlookAddIn
                 //xmlFileManager.CreateSettingsFile();
 
                 this.menuManager = new MenuManager(this.Application);
-                //this.menuManager.SendMessageToTabbles += OnSendMessageToTabbles;
-                if (this.ribbon != null)
-                {
-                    this.menuManager.Ribbon = this.ribbon;
-                }
+            
+                this.menuManager.Ribbon = this.ribbon;
+                ribbon.mMenuManager = menuManager;
 
                 this.itemManager = new ItemManager();
 
@@ -114,9 +112,9 @@ namespace Tabbles.OutlookAddIn
 
         protected override IRibbonExtensibility CreateRibbonExtensibilityObject()
         {
-            this.ribbon = new TabblesRibbon(this.menuManager);
+            this.ribbon = new TabblesRibbon();
             
-            this.menuManager.Ribbon = this.ribbon;
+            
 
             return this.ribbon;
         }
