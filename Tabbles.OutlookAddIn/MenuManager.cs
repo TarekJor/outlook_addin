@@ -14,13 +14,12 @@ using System.Drawing;
 using System.Threading;
 using System.Diagnostics;
 using System.IO.Pipes;
-
 using System.Xml.Linq;
 namespace Tabbles.OutlookAddIn
 {
 
 
-    public delegate bool IsAnyEmailSelectedHandler();
+    //public delegate bool IsAnyEmailSelectedHandler();
 
     public class MenuManager
     {
@@ -402,12 +401,19 @@ namespace Tabbles.OutlookAddIn
 
         public static void sendXmlToTabbles(XDocument xdoc)
         {
-            // todo add sync? only one thread at a time must do this.
-            using (var pc = new NamedPipeClientStream("TABBLES_PIPE_FROM_OUTLOOK"))
+            try
             {
-                pc.Connect(500);
-                xdoc.Save(pc);
+                // todo add sync? only one thread at a time must do this.
+                using (var pc = new NamedPipeClientStream("TABBLES_PIPE_FROM_OUTLOOK"))
+                {
+                    pc.Connect(500);
+                    xdoc.Save(pc);
 
+                }
+            }
+            catch (TimeoutException)
+            {
+                WinForms.MessageBox.Show("Tabbles is not running.");
             }
 
         }
