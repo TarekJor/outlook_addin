@@ -14,6 +14,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 //using Outlook = Microsoft.Office.Interop.Outlook;
 
+using System.Xml.Linq;
 
 #region Sujay
 //using Redemption;
@@ -35,7 +36,7 @@ namespace Tabbles.OutlookAddIn
         private TabblesRibbon ribbon;
 
         //SUJAYXML
-      //  private XMLFileManager xmlFileManager;
+        //  private XMLFileManager xmlFileManager;
 
         #region Sujay
         //private RDOSession rdoSession; 
@@ -57,7 +58,7 @@ namespace Tabbles.OutlookAddIn
 
 
                 //SUJAYXML
-               // xmlFileManager = new XMLFileManager();
+                // xmlFileManager = new XMLFileManager();
 
                 // SUJAYXML
                 //xmlFileManager.CreateSettingsFile();
@@ -74,7 +75,7 @@ namespace Tabbles.OutlookAddIn
                 #region Commented out
                 //see other Commented out sections
 
-             //   Application.AdvancedSearchComplete += Application_AdvancedSearchComplete;
+                //   Application.AdvancedSearchComplete += Application_AdvancedSearchComplete;
                 #endregion
 
                 this.syncManager = new SyncManager(Application.Session.Folders);
@@ -88,13 +89,13 @@ namespace Tabbles.OutlookAddIn
                 this.listenerThread = new Thread(ListenTabblesEvents);
                 this.listenerThread.Start();
 
-              //  if (!RegistryManager.IsSyncPerformed() && !RegistryManager.IsDontAskForSync())
+                //  if (!RegistryManager.IsSyncPerformed() && !RegistryManager.IsDontAskForSync())
 
                 StartSyncThread();
 
                 // SUJAYXML
 
-           //     if (!xmlFileManager.IsSyncPerformed() && !xmlFileManager.IsDontAskForSync())
+                //     if (!xmlFileManager.IsSyncPerformed() && !xmlFileManager.IsDontAskForSync())
                 if (!RegistryManager.IsSyncPerformed() && !RegistryManager.IsDontAskForSync())
                 {
                     StartSyncThread();
@@ -202,188 +203,174 @@ namespace Tabbles.OutlookAddIn
         //    }
         //}
 
-        
-        
+        private void handleMessageFromTabbles(XDocument xdoc)
+        {
+            var root = xdoc.Root;
+            if (root.Name.LocalName == "emails_tagged")
+            {
+                //MsgGensTagged msgGensTagged = (MsgGensTagged)messageObj;
+                //if (msgGensTagged.gens != null)
+                //{
+                //    foreach (string genCmdLine in msgGensTagged.gens)
+                //    {
+                //        // I have to tag the same email with categories corresponding to the tags
+                //        string[] arguments = genCmdLine.Split(OutlookCmdSeparator, StringSplitOptions.None);
+
+                //        string entryId = arguments[1];
+
+                //        MailItem mail = (MailItem)Application.Session.GetItemFromID(entryId);
+
+                //        string[] currentCategories;
+                //        if (mail.Categories != null)
+                //        {
+                //            currentCategories = Utils.GetCategories(mail);
+                //        }
+                //        else
+                //        {
+                //            currentCategories = new string[0];
+                //        }
+
+                //        var tagsToAddWithColors = (from tag in msgGensTagged.tags
+                //                                   where currentCategories.All(cat => cat != tag.Name)
+                //                                   select tag).ToList();
+
+                //        if (!tagsToAddWithColors.Any())
+                //        {
+                //            continue;
+                //        }
+
+                //        foreach (var tag in tagsToAddWithColors)
+                //        {
+                //            Category cat;
+                //            if (!CategoryExists(tag.Name))
+                //            {
+                //                cat = this.Application.Session.Categories.Add(tag.Name);
+                //            }
+                //            else
+                //            {
+                //                cat = this.Application.Session.Categories[tag.Name];
+                //            }
+
+                //            //change colors for all categories, in case if they were changed in Tabbles
+                //            cat.Color = Utils.GetOutlookColorFromRgb(tag.Color);
+                //        }
+
+                //        var tagsToAdd = (from x in tagsToAddWithColors
+                //                         select x.Name);
+                //        IEnumerable<string> newCats = tagsToAdd.Concat<string>(currentCategories);
+                //        // todo newcats is empty: ???? check, are they
+                //        mail.Categories = newCats.Aggregate((a, b) => a + "," + b);
+
+                //        this.menuManager.InternallyChangedMailIds.Add(entryId);
+
+                //        mail.Save();
+                //    }
+                //}
+            }
+            else if (root.Name.LocalName == "emails_untagged")
+            {
+                //MsgGensUntagged msgGensUntagged = (MsgGensUntagged)messageObj;
+                //if (msgGensUntagged.gens != null)
+                //{
+                //    foreach (string genCmdLine in msgGensUntagged.gens)
+                //    {
+                //        // I have to tag the same email with categories corresponding to the tags
+                //        string[] arguments = genCmdLine.Split(OutlookCmdSeparator, StringSplitOptions.None);
+
+                //        string entryId = arguments[1];
+
+                //        MailItem mail = (MailItem)Application.Session.GetItemFromID(entryId);
+
+                //        string[] currentCategories;
+                //        if (mail.Categories != null)
+                //        {
+                //            currentCategories = Utils.GetCategories(mail);
+                //        }
+                //        else
+                //        {
+                //            continue;
+                //        }
+
+                //        IEnumerable<string> newCats = currentCategories.Except<string>(msgGensUntagged.tags);
+
+                //        if (newCats.Any<string>() && !newCats.SequenceEqual(currentCategories))
+                //        {
+                //            mail.Categories = newCats.Aggregate((a, b) => a + "," + b);
+                //        }
+                //        else
+                //        {
+                //            continue;
+                //        }
+
+                //        this.menuManager.InternallyChangedMailIds.Add(entryId);
+
+                //        mail.Save();
+                //    }
+                //}
+            }
+            else if (root.Name.LocalName == "find_emails_which_have_these_tags")
+            {
+                //MsgOpenMailsWithTags msgOpenMailsWithTags = (MsgOpenMailsWithTags)messageObj;
+                //if (msgOpenMailsWithTags.tags != null)
+                //{
+                //    SearchByCategories(msgOpenMailsWithTags.tags);
+                //}
+            }
+            else if (root.Name.LocalName == "tag_created")
+            {
+                //MsgAtomKeyCreated msgAtomKeyCreated = (MsgAtomKeyCreated)messageObj;
+                //string categoryName = msgAtomKeyCreated.AtomKeyName;
+
+                //Category category;
+                //if (!CategoryExists(categoryName))
+                //{
+                //    category = this.Application.Session.Categories.Add(categoryName);
+                //}
+                //else
+                //{
+                //    category = this.Application.Session.Categories[categoryName];
+                //}
+
+                //category.Color = Utils.GetOutlookColorFromRgb(msgAtomKeyCreated.AtomKeyColor);
+
+                //Logger.Log("detected ak created: " + msgAtomKeyCreated.AtomKeyName);
+            }
+            else if (root.Name.LocalName == "tag_deleted")
+            {
+                Logger.Log("detected ak deleted");
+            }
+            else
+            {
+                Logger.Log("message from Tabbles not recognized: " + root.ToString());
+            }
+        }
+
+
         private void ListenTabblesEvents()
         {
-            NamedPipeServerStream tabblesToOutlookServerPipe;
+
             while (true)
             {
                 try
                 {
-                    tabblesToOutlookServerPipe = new NamedPipeServerStream("TABBLES_PIPE_TO_OUTLOOK", PipeDirection.In);
+                    var pipeServer = new NamedPipeServerStream("TABBLES_PIPE_TO_OUTLOOK", PipeDirection.In);
+
+                    Logger.Log("Waiting for Tabbles to connect to outlook pipe...");
+                    pipeServer.WaitForConnection(); //blocking
+
+                    Logger.Log("Connection established.");
+
+                    var xdoc = XDocument.Load(pipeServer);
+                    handleMessageFromTabbles(xdoc);
+
+
                 }
-                catch (System.Exception ex)
+                catch (System.Exception e)
                 {
-                    Logger.Log("Exception occurred while initalizing the listener pipe: " + ex.ToString());
-                    return;
-                }
-                Logger.Log("Waiting for Tabbles to connect to outlook pipe...");
-                tabblesToOutlookServerPipe.WaitForConnection(); //blocking
-
-                Logger.Log("Connection established.");
-
-                while (true)
-                {
-                    object messageObj;
-                    try
-                    {
-                        messageObj = this.formatter.Deserialize(tabblesToOutlookServerPipe);
-                        Logger.Log("Message arrived from Tabbles: " + messageObj.GetType().ToString());
-                    }
-                    catch (SerializationException ex)
-                    {
-                        string errMessage = ex.GetType().ToString() + " --- " + ex.Message;
-                        Logger.Log("Deserialization failed: " + ex.ToString());
-
-                        //MessageBox.Show(errMessage);
-
-                        tabblesToOutlookServerPipe.Dispose();
-                        break; //create server pipe again
-                    }
-
-                    lock (this.menuManager.syncObj)
-                    {
-                        if (messageObj is MsgGensTagged)
-                        {
-                            MsgGensTagged msgGensTagged = (MsgGensTagged)messageObj;
-                            if (msgGensTagged.gens != null)
-                            {
-                                foreach (string genCmdLine in msgGensTagged.gens)
-                                {
-                                    // I have to tag the same email with categories corresponding to the tags
-                                    string[] arguments = genCmdLine.Split(OutlookCmdSeparator, StringSplitOptions.None);
-
-                                    string entryId = arguments[1];
-
-                                    MailItem mail = (MailItem)Application.Session.GetItemFromID(entryId);
-
-                                    string[] currentCategories;
-                                    if (mail.Categories != null)
-                                    {
-                                        currentCategories = Utils.GetCategories(mail);
-                                    }
-                                    else
-                                    {
-                                        currentCategories = new string[0];
-                                    }
-
-                                    var tagsToAddWithColors = (from tag in msgGensTagged.tags
-                                                               where currentCategories.All(cat => cat != tag.Name)
-                                                               select tag).ToList();
-
-                                    if (!tagsToAddWithColors.Any())
-                                    {
-                                        continue;
-                                    }
-
-                                    foreach (var tag in tagsToAddWithColors)
-                                    {
-                                        Category cat;
-                                        if (!CategoryExists(tag.Name))
-                                        {
-                                            cat = this.Application.Session.Categories.Add(tag.Name);
-                                        }
-                                        else
-                                        {
-                                            cat = this.Application.Session.Categories[tag.Name];
-                                        }
-
-                                        //change colors for all categories, in case if they were changed in Tabbles
-                                        cat.Color = Utils.GetOutlookColorFromRgb(tag.Color);
-                                    }
-
-                                    var tagsToAdd = (from x in tagsToAddWithColors
-                                                     select x.Name);
-                                    IEnumerable<string> newCats = tagsToAdd.Concat<string>(currentCategories);
-                                    // todo newcats is empty: ???? check, are they
-                                    mail.Categories = newCats.Aggregate((a, b) => a + "," + b);
-
-                                    this.menuManager.InternallyChangedMailIds.Add(entryId);
-
-                                    mail.Save();
-                                }
-                            }
-                        }
-                        else if (messageObj is MsgGensUntagged)
-                        {
-                            MsgGensUntagged msgGensUntagged = (MsgGensUntagged)messageObj;
-                            if (msgGensUntagged.gens != null)
-                            {
-                                foreach (string genCmdLine in msgGensUntagged.gens)
-                                {
-                                    // I have to tag the same email with categories corresponding to the tags
-                                    string[] arguments = genCmdLine.Split(OutlookCmdSeparator, StringSplitOptions.None);
-
-                                    string entryId = arguments[1];
-
-                                    MailItem mail = (MailItem)Application.Session.GetItemFromID(entryId);
-
-                                    string[] currentCategories;
-                                    if (mail.Categories != null)
-                                    {
-                                        currentCategories = Utils.GetCategories(mail);
-                                    }
-                                    else
-                                    {
-                                        continue;
-                                    }
-
-                                    IEnumerable<string> newCats = currentCategories.Except<string>(msgGensUntagged.tags);
-
-                                    if (newCats.Any<string>() && !newCats.SequenceEqual(currentCategories))
-                                    {
-                                        mail.Categories = newCats.Aggregate((a, b) => a + "," + b);
-                                    }
-                                    else
-                                    {
-                                        continue;
-                                    }
-
-                                    this.menuManager.InternallyChangedMailIds.Add(entryId);
-
-                                    mail.Save();
-                                }
-                            }
-                        }
-                        else if (messageObj is MsgOpenMailsWithTags)
-                        {
-                            MsgOpenMailsWithTags msgOpenMailsWithTags = (MsgOpenMailsWithTags)messageObj;
-                            if (msgOpenMailsWithTags.tags != null)
-                            {
-                                SearchByCategories(msgOpenMailsWithTags.tags);
-                            }
-                        }
-                        else if (messageObj is MsgAtomKeyCreated)
-                        {
-                            MsgAtomKeyCreated msgAtomKeyCreated = (MsgAtomKeyCreated)messageObj;
-                            string categoryName = msgAtomKeyCreated.AtomKeyName;
-
-                            Category category;
-                            if (!CategoryExists(categoryName))
-                            {
-                                category = this.Application.Session.Categories.Add(categoryName);
-                            }
-                            else
-                            {
-                                category = this.Application.Session.Categories[categoryName];
-                            }
-
-                            category.Color = Utils.GetOutlookColorFromRgb(msgAtomKeyCreated.AtomKeyColor);
-
-                            Logger.Log("detected ak created: " + msgAtomKeyCreated.AtomKeyName);
-                        }
-                        else if (messageObj is MsgAtomKeysDeleted)
-                        {
-                            Logger.Log("detected ak deleted");
-                        }
-                        else
-                        {
-                            Logger.Log("message from Tabbles not recognized: " + messageObj.GetType().ToString());
-                        }
-                    }
+                    Logger.Log("exception - restarting pipe server");
                 }
             }
+
         }
 
         private bool CategoryExists(string categoryName)
@@ -405,11 +392,11 @@ namespace Tabbles.OutlookAddIn
         {
             Folder currentFolder = (Folder)Application.ActiveExplorer().CurrentFolder;
 
-            
-                        
+
+
             Folder rootFolder;
 
-                        
+
             if (currentFolder != null)
             {
                 rootFolder = (Folder)currentFolder.Store.GetRootFolder();
@@ -421,8 +408,8 @@ namespace Tabbles.OutlookAddIn
 
             #region SujayTest
 
-            String str = string.Format("Rootfolder '{0}'\t Currentfolder'{1}'", rootFolder.Name,currentFolder.Name);
-            
+            String str = string.Format("Rootfolder '{0}'\t Currentfolder'{1}'", rootFolder.Name, currentFolder.Name);
+
             #endregion SujayTest
 
 
@@ -475,38 +462,38 @@ namespace Tabbles.OutlookAddIn
 
                         //RDOStore2 store = (RDOStore2)this.rdoSession.GetStoreFromID(rootFolder.StoreID);
 
-                         //oInbox = oApp.GetNamespace("MAPI").GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox);
+                        //oInbox = oApp.GetNamespace("MAPI").GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox);
 
-                        
+
                         NameSpace olNS = this.Application.GetNamespace("MAPI");
                         Store olStore = olNS.GetStoreFromID(rootFolder.StoreID);
 
-                        MAPIFolder olSearchFolder ;
+                        MAPIFolder olSearchFolder;
                         Search olSearch;
-                      //  olStore.
+                        //  olStore.
 
-                      //  Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
+                        //  Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
 
                         string folderStr = string.Format("'{0}'", rootFolder.FolderPath);
                         olSearch = Application.AdvancedSearch(folderStr, filterSql.ToString(), true, "Sujay Search");
-                 //     olSearchFolder = olSearch.Save("Sujay Search");
+                        //     olSearchFolder = olSearch.Save("Sujay Search");
 
                         //Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
 
                         //store.OnSearchComplete += store_OnSearchComplete;
-                        Application.AdvancedSearchComplete +=new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
-                      
+                        Application.AdvancedSearchComplete += new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
+
 
                         MAPIFolder olFolderFromID = olNS.GetFolderFromID(rootFolder.EntryID, rootFolder.StoreID);
 
-                        
+
                         //RDOFolder folder = this.rdoSession.GetFolderFromID(rootFolder.EntryID, rootFolder.StoreID);
 
                         // Sujay code
 
                         //store.Searches.AddCustom(SearchResultsFolderName, filterSql.ToString(), folder, true); 
 
-                        
+
                         #endregion
                     }
                     catch (System.Exception ex)
@@ -590,7 +577,7 @@ namespace Tabbles.OutlookAddIn
                                 }
                                 catch (System.Exception ex)
                                 {
-                                  //  this.logger.Log("Exception occurred while saving and showing search results: " + ex.ToString());
+                                    //  this.logger.Log("Exception occurred while saving and showing search results: " + ex.ToString());
                                 }
                             });
 
@@ -616,14 +603,14 @@ namespace Tabbles.OutlookAddIn
 
                 //give some response in any case
                 MessageBox.Show(Res.MsgNoResultsFound);
-            } 
+            }
             #endregion
 
             MessageBox.Show(" In advanced search");
 
             Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
 
-          //  Application.ActiveExplorer().CurrentView = searchFolder.Application.ActiveExplorer().CurrentView;//  = searchFolder.f;
+            //  Application.ActiveExplorer().CurrentView = searchFolder.Application.ActiveExplorer().CurrentView;//  = searchFolder.f;
         }
         #endregion
 
