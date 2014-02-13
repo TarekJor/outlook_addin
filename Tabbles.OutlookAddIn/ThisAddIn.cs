@@ -44,7 +44,6 @@ namespace Tabbles.OutlookAddIn
 
         private BinaryFormatter formatter = new BinaryFormatter();
         private Thread listenerThread;
-        private NamedPipeClientStream outlookToTabblesClientPipe;
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
