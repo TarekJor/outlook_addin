@@ -20,7 +20,7 @@ namespace Tabbles.OutlookAddIn
 
     public delegate bool IsAnyEmailSelectedHandler();
 
-    class MenuManager
+    public class MenuManager
     {
 
         // SUJAYXML

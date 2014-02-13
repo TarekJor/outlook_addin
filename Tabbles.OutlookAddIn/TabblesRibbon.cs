@@ -42,9 +42,10 @@ namespace Tabbles.OutlookAddIn
 
         //public event IsAnyEmailSelectedHandler IsAnyEmailSelected;
 
-        MenuManager mMenuManager;
-        public TabblesRibbon()
+        public MenuManager mMenuManager;
+        public TabblesRibbon(MenuManager menuM)
         {
+            mMenuManager = menuM;
         }
 
         #region IRibbonExtensibility Members

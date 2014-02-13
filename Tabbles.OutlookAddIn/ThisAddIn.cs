@@ -114,11 +114,9 @@ namespace Tabbles.OutlookAddIn
 
         protected override IRibbonExtensibility CreateRibbonExtensibilityObject()
         {
-            this.ribbon = new TabblesRibbon();
-            if (this.menuManager != null)
-            {
-                this.menuManager.Ribbon = this.ribbon;
-            }
+            this.ribbon = new TabblesRibbon(this.menuManager);
+            
+            this.menuManager.Ribbon = this.ribbon;
 
             return this.ribbon;
         }
