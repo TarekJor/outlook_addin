@@ -266,64 +266,55 @@ namespace Tabbles.OutlookAddIn
 
                 }
 
-                //    foreach (string genCmdLine in msgGensTagged.gens)
-                //    {
-                //        // I have to tag the same email with categories corresponding to the tags
-                //        string[] arguments = genCmdLine.Split(OutlookCmdSeparator, StringSplitOptions.None);
-
-                //        string entryId = arguments[1];
-
-                //        MailItem mail = (MailItem)Application.Session.GetItemFromID(entryId);
-
-                //        string[] currentCategories;
-                //        if (mail.Categories != null)
-                //        {
-                //            currentCategories = Utils.GetCategories(mail);
-                //        }
-                //        else
-                //        {
-                //            currentCategories = new string[0];
-                //        }
-
-                //        var tagsToAddWithColors = (from tag in msgGensTagged.tags
-                //                                   where currentCategories.All(cat => cat != tag.Name)
-                //                                   select tag).ToList();
-
-                //        if (!tagsToAddWithColors.Any())
-                //        {
-                //            continue;
-                //        }
-
-                //        foreach (var tag in tagsToAddWithColors)
-                //        {
-                //            Category cat;
-                //            if (!CategoryExists(tag.Name))
-                //            {
-                //                cat = this.Application.Session.Categories.Add(tag.Name);
-                //            }
-                //            else
-                //            {
-                //                cat = this.Application.Session.Categories[tag.Name];
-                //            }
-
-                //            //change colors for all categories, in case if they were changed in Tabbles
-                //            cat.Color = Utils.GetOutlookColorFromRgb(tag.Color);
-                //        }
-
-                //        var tagsToAdd = (from x in tagsToAddWithColors
-                //                         select x.Name);
-                //        IEnumerable<string> newCats = tagsToAdd.Concat<string>(currentCategories);
-                //        // todo newcats is empty: ???? check, are they
-                //        mail.Categories = newCats.Aggregate((a, b) => a + "," + b);
-
-                //        this.menuManager.InternallyChangedMailIds.Add(entryId);
-
-                //        mail.Save();
-                //    }
-                //}
             }
             else if (root.Name.LocalName == "emails_untagged")
             {
+                var emails = root.Elements("email");
+                var tags = root.Elements("tag");
+                foreach (var email in emails)
+                {
+                    var cmdLine = email.Attribute("command_line").Value;
+
+                    // I have to tag the same email with categories corresponding to the tags
+                    string[] arguments = cmdLine.Split(OutlookCmdSeparator, StringSplitOptions.None);
+
+                    string entryId = arguments[1];
+
+                    MailItem mail = (MailItem)Application.Session.GetItemFromID(entryId);
+
+                    string[] currentCategories;
+                    if (mail.Categories != null)
+                    {
+                        currentCategories = Utils.GetCategories(mail);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+
+                    var tagnames = (from tag in tags 
+                                        select tag.Attribute("name").Value );
+                    IEnumerable<string> newCats = currentCategories.Except<string>(tagnames);
+
+                    if (newCats.Any<string>() && !newCats.SequenceEqual(currentCategories))
+                    {
+                        mail.Categories = newCats.Aggregate((a, b) => a + "," + b);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    this.menuManager.InternallyChangedMailIds.Add(entryId);
+
+                    mail.Save();
+                }
+
+
+
+
+
                 //MsgGensUntagged msgGensUntagged = (MsgGensUntagged)messageObj;
                 //if (msgGensUntagged.gens != null)
                 //{

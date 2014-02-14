@@ -44,7 +44,7 @@ namespace Tabbles.OutlookAddIn
 
         private const string OutlookColorStrFollowUp = "F6532F";
 
-        private static readonly string[] CategorySeparator = new string[] { ", " };
+        private static readonly string[] CategorySeparator = new string[] { ";" };
 
         private const string RegKeyTabbles = @"SOFTWARE\Yellow Blue Soft\Tabbles";
         private const string RegValueTabblesInstallDir = "installation_dir";
@@ -182,12 +182,19 @@ namespace Tabbles.OutlookAddIn
         /// <returns></returns>
         public static string[] GetCategories(MailItem mail)
         {
-            if (mail != null && mail.Categories != null)
+            if (mail.Categories != null)
             {
-                return mail.Categories.Split(CategorySeparator, StringSplitOptions.None);
+                var spl = mail.Categories.Split(CategorySeparator, StringSplitOptions.None);
+                var x = (from q in spl
+                         select q.Trim());
+                return x.ToArray();
+            }
+            else
+            {
+                return new string[]{};
             }
 
-            return new string[0];
+            
         }
 
         /// <summary>
