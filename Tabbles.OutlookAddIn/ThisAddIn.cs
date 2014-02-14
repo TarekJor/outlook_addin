@@ -258,7 +258,7 @@ namespace Tabbles.OutlookAddIn
                                      select x.name);
                     IEnumerable<string> newCats = tagsToAdd.Concat<string>(currentCategories);
                     // todo newcats is empty: ???? check, are they
-                    mail.Categories = newCats.Aggregate((a, b) => a + "," + b);
+                    mail.Categories = newCats.Aggregate((a, b) => a + ";" + b);
 
                     this.menuManager.InternallyChangedMailIds.Add(entryId);
 
