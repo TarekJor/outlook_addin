@@ -395,7 +395,7 @@ namespace Tabbles.OutlookAddIn
             }
         }
 
-        private void SearchByCategories(IEnumerable<string> categories)
+        public void SearchByCategories(IEnumerable<string> categories)
         {
             Folder currentFolder = (Folder)Application.ActiveExplorer().CurrentFolder;
 
@@ -453,7 +453,7 @@ namespace Tabbles.OutlookAddIn
             //--------------------------------------------------------------------------------------
             #endregion
 
-            System.Action showResultsAction = new System.Action(() =>
+            var showResults = new System.Action(() =>
                 {
                     try
                     {
@@ -475,7 +475,7 @@ namespace Tabbles.OutlookAddIn
                         NameSpace olNS = this.Application.GetNamespace("MAPI");
                         Store olStore = olNS.GetStoreFromID(rootFolder.StoreID);
 
-                        MAPIFolder olSearchFolder;
+                        //MAPIFolder olSearchFolder;
                         Search olSearch;
                         //  olStore.
 
@@ -518,12 +518,12 @@ namespace Tabbles.OutlookAddIn
                 }
 
                 //in case if there is a search folder
-                this.folderManager.RemoveFolderByName(searchFolders, SearchResultsFolderName, showResultsAction);
+                this.folderManager.RemoveFolderByName(folders: searchFolders, name: SearchResultsFolderName, callback: showResults);
             }
             else
             {
                 //in case if there is no any search folder
-                showResultsAction();
+                showResults ();
             }
 
             return;
