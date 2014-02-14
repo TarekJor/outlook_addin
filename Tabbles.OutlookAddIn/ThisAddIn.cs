@@ -12,6 +12,7 @@ using Microsoft.Office.Interop.Outlook;
 using Res = Tabbles.OutlookAddIn.Properties.Resources;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Windows.Media;
 //using Outlook = Microsoft.Office.Interop.Outlook;
 
 using System.Xml.Linq;
@@ -203,9 +204,68 @@ namespace Tabbles.OutlookAddIn
             var root = xdoc.Root;
             if (root.Name.LocalName == "emails_tagged")
             {
-                //MsgGensTagged msgGensTagged = (MsgGensTagged)messageObj;
-                //if (msgGensTagged.gens != null)
-                //{
+                var emails = root.Elements("email");
+                var tags = root.Elements("tags");
+
+                foreach (var email in emails)
+                {
+                    var cmdLine = email.Attribute("command_line").Value;
+                    // I have to tag the same email with categories corresponding to the tags
+                    string[] arguments = cmdLine.Split(OutlookCmdSeparator, StringSplitOptions.None);
+
+                    string entryId = arguments[1];
+
+                    MailItem mail = (MailItem)Application.Session.GetItemFromID(entryId);
+
+                    string[] currentCategories;
+                    if (mail.Categories != null)
+                    {
+                        currentCategories = Utils.GetCategories(mail);
+                    }
+                    else
+                    {
+                        currentCategories = new string[0];
+                    }
+
+                    var tagsToAddWithColors = (from tag in tags
+                                               let tagName = tag.Attribute("name").Value
+                                               let tagColor = tag.Attribute("color").Value
+                                               where currentCategories.All(cat => cat != tagName)
+                                               select new { name = tagName, color = tagColor }).ToList();
+
+                    if (!tagsToAddWithColors.Any())
+                    {
+                        continue;
+                    }
+
+                    foreach (var tag in tagsToAddWithColors)
+                    {
+                        Category cat;
+                        if (!CategoryExists(tag.name))
+                        {
+                            cat = this.Application.Session.Categories.Add(tag.name);
+                        }
+                        else
+                        {
+                            cat = this.Application.Session.Categories[tag.name];
+                        }
+
+                        //change colors for all categories, in case if they were changed in Tabbles
+                        cat.Color = Utils.GetOutlookColorFromRgb(tag.color);
+                    }
+
+                    var tagsToAdd = (from x in tagsToAddWithColors
+                                     select x.name);
+                    IEnumerable<string> newCats = tagsToAdd.Concat<string>(currentCategories);
+                    // todo newcats is empty: ???? check, are they
+                    mail.Categories = newCats.Aggregate((a, b) => a + "," + b);
+
+                    this.menuManager.InternallyChangedMailIds.Add(entryId);
+
+                    mail.Save();
+
+                }
+
                 //    foreach (string genCmdLine in msgGensTagged.gens)
                 //    {
                 //        // I have to tag the same email with categories corresponding to the tags
@@ -348,7 +408,7 @@ namespace Tabbles.OutlookAddIn
             {
                 try
                 {
-                    var pipeServer = new NamedPipeServerStream("TABBLES_PIPE_TO_OUTLOOK", PipeDirection.In);
+                    var pipeServer = new NamedPipeServerStream("TABBLES_PIPE_TO_OUTLOOK", PipeDirection.InOut); // inout per prevenire il bug che succedeva nell'altro verso. cioè, con solo in, dà unauthorizedaccessexception.
 
                     Logger.Log("Waiting for Tabbles to connect to outlook pipe...");
                     pipeServer.WaitForConnection(); //blocking
