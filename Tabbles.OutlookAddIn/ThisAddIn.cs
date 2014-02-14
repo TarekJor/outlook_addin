@@ -435,7 +435,8 @@ namespace Tabbles.OutlookAddIn
 
             for (int i = 1; i < count; i++)
             {
-                filterSql.Append(" OR ").AppendFormat("\"urn:schemas-microsoft-com:office:office#Keywords\" = '{0}'", categories.ElementAt<string>(i));
+                // andrej aveva messo OR. a me sembra senza senso.
+                filterSql.Append(" AND ").AppendFormat("\"urn:schemas-microsoft-com:office:office#Keywords\" = '{0}'", categories.ElementAt<string>(i));
             }
             filterSql.Append(")");
 
