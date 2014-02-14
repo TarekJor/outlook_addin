@@ -415,11 +415,6 @@ namespace Tabbles.OutlookAddIn
                 rootFolder = (Folder)Application.Session.Folders[1];
             }
 
-            #region SujayTest
-
-            String str = string.Format("Rootfolder '{0}'\t Currentfolder'{1}'", rootFolder.Name, currentFolder.Name);
-
-            #endregion SujayTest
 
 
 
@@ -442,7 +437,7 @@ namespace Tabbles.OutlookAddIn
             }
             filterSql.Append(")");
 
-            #region Commented out
+            #region old comment by andrej
             //-- We use Redemption instead of these code (together with AdvancedSearchComplete event, see another Commented out section)
             //-- Currently there is a problem with calling Results.Save() for search on a folder of non-default store
             //See: http://social.msdn.microsoft.com/Forums/en-US/outlookdev/thread/7d1d3494-988f-4c42-a391-e732b5dfb2c6
