@@ -580,15 +580,8 @@ namespace Tabbles.OutlookAddIn
 
                         var showResultsAction = new System.Action(() =>
                             {
-                                try
-                                {
                                     Folder searchResultsFolder = (Folder)search.Save(SearchResultsFolderName);
                                     Application.ActiveExplorer().CurrentFolder = searchResultsFolder;
-                                }
-                                catch (System.Exception ex)
-                                {
-                                    //  this.logger.Log("Exception occurred while saving and showing search results: " + ex.ToString());
-                                }
                             });
 
                         if (searchFolders != null)
