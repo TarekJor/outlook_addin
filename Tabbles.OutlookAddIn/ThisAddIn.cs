@@ -295,16 +295,17 @@ namespace Tabbles.OutlookAddIn
 
                     var tagnames = (from tag in tags 
                                         select tag.Attribute("name").Value );
-                    IEnumerable<string> newCats = currentCategories.Except<string>(tagnames);
+                    var newCats = currentCategories.Except<string>(tagnames).ToList();
 
-                    if (newCats.Any<string>() && !newCats.SequenceEqual(currentCategories))
+                    if (newCats.Any())
                     {
-                        mail.Categories = newCats.Aggregate((a, b) => a + "," + b);
+                        mail.Categories = newCats.Aggregate((a, b) => a + ";" + b);
                     }
-                    else
-                    {
-                        continue;
+                    else{
+
+                        mail.Categories = null;
                     }
+
 
                     this.menuManager.InternallyChangedMailIds.Add(entryId);
 
