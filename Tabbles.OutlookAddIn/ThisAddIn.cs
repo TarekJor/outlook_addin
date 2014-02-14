@@ -311,48 +311,6 @@ namespace Tabbles.OutlookAddIn
                     mail.Save();
                 }
 
-
-
-
-
-                //MsgGensUntagged msgGensUntagged = (MsgGensUntagged)messageObj;
-                //if (msgGensUntagged.gens != null)
-                //{
-                //    foreach (string genCmdLine in msgGensUntagged.gens)
-                //    {
-                //        // I have to tag the same email with categories corresponding to the tags
-                //        string[] arguments = genCmdLine.Split(OutlookCmdSeparator, StringSplitOptions.None);
-
-                //        string entryId = arguments[1];
-
-                //        MailItem mail = (MailItem)Application.Session.GetItemFromID(entryId);
-
-                //        string[] currentCategories;
-                //        if (mail.Categories != null)
-                //        {
-                //            currentCategories = Utils.GetCategories(mail);
-                //        }
-                //        else
-                //        {
-                //            continue;
-                //        }
-
-                //        IEnumerable<string> newCats = currentCategories.Except<string>(msgGensUntagged.tags);
-
-                //        if (newCats.Any<string>() && !newCats.SequenceEqual(currentCategories))
-                //        {
-                //            mail.Categories = newCats.Aggregate((a, b) => a + "," + b);
-                //        }
-                //        else
-                //        {
-                //            continue;
-                //        }
-
-                //        this.menuManager.InternallyChangedMailIds.Add(entryId);
-
-                //        mail.Save();
-                //    }
-                //}
             }
             else if (root.Name.LocalName == "find_emails_which_have_these_tags")
             {
@@ -362,25 +320,25 @@ namespace Tabbles.OutlookAddIn
                 //    SearchByCategories(msgOpenMailsWithTags.tags);
                 //}
             }
-            else if (root.Name.LocalName == "tag_created")
-            {
-                //MsgAtomKeyCreated msgAtomKeyCreated = (MsgAtomKeyCreated)messageObj;
-                //string categoryName = msgAtomKeyCreated.AtomKeyName;
+            //else if (root.Name.LocalName == "tag_created")
+            //{
+            //    //MsgAtomKeyCreated msgAtomKeyCreated = (MsgAtomKeyCreated)messageObj;
+            //    //string categoryName = msgAtomKeyCreated.AtomKeyName;
 
-                //Category category;
-                //if (!CategoryExists(categoryName))
-                //{
-                //    category = this.Application.Session.Categories.Add(categoryName);
-                //}
-                //else
-                //{
-                //    category = this.Application.Session.Categories[categoryName];
-                //}
+            //    //Category category;
+            //    //if (!CategoryExists(categoryName))
+            //    //{
+            //    //    category = this.Application.Session.Categories.Add(categoryName);
+            //    //}
+            //    //else
+            //    //{
+            //    //    category = this.Application.Session.Categories[categoryName];
+            //    //}
 
-                //category.Color = Utils.GetOutlookColorFromRgb(msgAtomKeyCreated.AtomKeyColor);
+            //    //category.Color = Utils.GetOutlookColorFromRgb(msgAtomKeyCreated.AtomKeyColor);
 
-                //Logger.Log("detected ak created: " + msgAtomKeyCreated.AtomKeyName);
-            }
+            //    //Logger.Log("detected ak created: " + msgAtomKeyCreated.AtomKeyName);
+            //}
             else if (root.Name.LocalName == "tag_deleted")
             {
                 Logger.Log("detected ak deleted");

@@ -36,7 +36,7 @@ namespace Tabbles.OutlookAddIn
         private Office.IRibbonUI ribbon;
 
         //public event EventHandler TagEmailsWithTabbles;
-        //public event EventHandler OpenInTabbles;
+        //public event EventHandler OpenEmailInTabbles;
         //public event EventHandler TabblesSearch;
         //public event EventHandler SyncWithTabbles;
 
@@ -85,9 +85,11 @@ namespace Tabbles.OutlookAddIn
                     break;
                 case "openInTabblesButton":
                 case "openInTabblesMenu":
-                    //if (OpenInTabbles != null)
+                    mMenuManager.OpenSelectedEmailInTabbles();
+                    break;
+                    //if (OpenEmailInTabbles != null)
                     //{
-                    //    OpenInTabbles(control, EventArgs.Empty);
+                    //    OpenEmailInTabbles(control, EventArgs.Empty);
                     //}
                     break;
                 case "tabblesSearchButton":

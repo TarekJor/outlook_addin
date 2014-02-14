@@ -74,9 +74,9 @@ namespace Tabbles.OutlookAddIn
                 //{
                 //    TagSelectedEmailsWithTabbles();
                 //};
-                //value.OpenInTabbles += (sender, args) =>
+                //value.OpenEmailInTabbles += (sender, args) =>
                 //{
-                //    OpenInTabblesButtonClick();
+                //    OpenSelectedEmailInTabbles();
                 //};
                 //value.TabblesSearch += (sender, args) =>
                 //{
@@ -457,14 +457,14 @@ namespace Tabbles.OutlookAddIn
 
         private void openInTabblesMenuButton_Click(CommandBarButton Ctrl, ref bool CancelDefault)
         {
-            OpenInTabblesButtonClick();
+            OpenSelectedEmailInTabbles();
         }
 
-        private void OpenInTabblesButtonClick()
+        public void OpenSelectedEmailInTabbles()
         {
             if (IsAnyEmailSelected(true))
             {
-                OpenInTabbles(this.selectedMails[0]);
+                OpenEmailInTabbles(this.selectedMails[0]);
             }
         }
 
@@ -472,29 +472,20 @@ namespace Tabbles.OutlookAddIn
         {
             if (IsAnyEmailSelected(false))
             {
-                OpenInTabbles(this.selectedMails[0]);
+                OpenEmailInTabbles(this.selectedMails[0]);
             }
         }
 
-        private void OpenInTabbles(MailItem mail)
+        public void OpenEmailInTabbles(MailItem m)
         {
-            // todo
-            //if (SendMessageToTabbles == null)
-            //{
-            //    return;
-            //}
 
-            //var email = new Generic
-            //{
-            //    name = mail.Subject,
-            //    commandLine = this.outlookPrefix + mail.EntryID,
-            //    icon = new IconOther(),
-            //    showCommandLine = false
-            //};
-            //SendMessageToTabbles(new INeedToOpenGenericInTabbles()
-            //{
-            //    gen = email
-            //});
+            var atSubj = new XAttribute("subject", m.Subject);
+            var atCmdLine = new XAttribute("command_line", outlookPrefix + m.EntryID);
+            var ats = new[] { atSubj, atCmdLine };
+            var xelRoot = new XElement("locate_email", ats);
+            var xdoc = new XDocument(xelRoot);
+            sendXmlToTabbles(xdoc);
+
         }
 
         private void tabblesSearch_Click(CommandBarButton Ctrl, ref bool CancelDefault)
