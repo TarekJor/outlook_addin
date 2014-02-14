@@ -475,17 +475,17 @@ namespace Tabbles.OutlookAddIn
                         //oInbox = oApp.GetNamespace("MAPI").GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox);
 
 
-                        NameSpace olNS = this.Application.GetNamespace("MAPI");
-                        Store olStore = olNS.GetStoreFromID(rootFolder.StoreID);
+                        //NameSpace olNS = this.Application.GetNamespace("MAPI");
+                        //Store olStore = olNS.GetStoreFromID(rootFolder.StoreID);
 
                         //MAPIFolder olSearchFolder;
-                        Search olSearch;
+                        
                         //  olStore.
 
                         //  Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
 
                         string folderStr = string.Format("'{0}'", rootFolder.FolderPath);
-                        olSearch = Application.AdvancedSearch(folderStr, filterSql.ToString(), true, "Sujay Search");
+                        var olSearch = Application.AdvancedSearch(folderStr, filterSql.ToString(), true, "Sujay Search");
                         //     olSearchFolder = olSearch.Save("Sujay Search");
 
                         //Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
@@ -494,7 +494,7 @@ namespace Tabbles.OutlookAddIn
                         
 
 
-                        MAPIFolder olFolderFromID = olNS.GetFolderFromID(rootFolder.EntryID, rootFolder.StoreID);
+                        //MAPIFolder olFolderFromID = olNS.GetFolderFromID(rootFolder.EntryID, rootFolder.StoreID);
 
 
                         //RDOFolder folder = this.rdoSession.GetFolderFromID(rootFolder.EntryID, rootFolder.StoreID);
