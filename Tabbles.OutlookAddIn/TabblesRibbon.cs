@@ -87,16 +87,8 @@ namespace Tabbles.OutlookAddIn
                 case "openInTabblesMenu":
                     mMenuManager.OpenSelectedEmailInTabbles();
                     break;
-                    //if (OpenEmailInTabbles != null)
-                    //{
-                    //    OpenEmailInTabbles(control, EventArgs.Empty);
-                    //}
-                    break;
                 case "tabblesSearchButton":
-                    //if (TabblesSearch != null)
-                    //{
-                    //    TabblesSearch(control, EventArgs.Empty);
-                    //}
+                    mMenuManager.openQuickTagAndShowResultInOutlook();
                     break;
                 case "syncWithTabblesButton":
                     //if (SyncWithTabbles != null)

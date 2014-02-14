@@ -317,10 +317,15 @@ namespace Tabbles.OutlookAddIn
             }
             else if (root.Name.LocalName == "find_emails_which_have_these_tags")
             {
+                var tags = root.Elements("tag");
+
+                var tagnames = (from tag in tags
+                                select tag.Attribute("name").Value);
+
                 //MsgOpenMailsWithTags msgOpenMailsWithTags = (MsgOpenMailsWithTags)messageObj;
                 //if (msgOpenMailsWithTags.tags != null)
                 //{
-                //    SearchByCategories(msgOpenMailsWithTags.tags);
+                SearchByCategories(tagnames);
                 //}
             }
             //else if (root.Name.LocalName == "tag_created")
@@ -611,9 +616,9 @@ namespace Tabbles.OutlookAddIn
             }
             #endregion
 
-            MessageBox.Show(" In advanced search");
+            //MessageBox.Show(" In advanced search");
 
-            Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
+            //Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
 
             //  Application.ActiveExplorer().CurrentView = searchFolder.Application.ActiveExplorer().CurrentView;//  = searchFolder.f;
         }

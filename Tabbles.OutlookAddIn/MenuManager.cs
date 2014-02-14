@@ -422,6 +422,16 @@ namespace Tabbles.OutlookAddIn
 
         }
 
+        public void openQuickTagAndShowResultInOutlook()
+        {
+
+            
+            var xelRoot = new XElement("quick_open_tags_in_outlook");
+            var xdoc = new XDocument(xelRoot);
+            sendXmlToTabbles(xdoc);
+
+        }
+
 
         public void TagEmailsWithTabbles(List<MailItem> mails)
         {
