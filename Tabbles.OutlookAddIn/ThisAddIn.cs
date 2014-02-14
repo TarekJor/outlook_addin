@@ -205,7 +205,7 @@ namespace Tabbles.OutlookAddIn
             if (root.Name.LocalName == "emails_tagged")
             {
                 var emails = root.Elements("email");
-                var tags = root.Elements("tags");
+                var tags = root.Elements("tag");
 
                 foreach (var email in emails)
                 {
@@ -408,15 +408,17 @@ namespace Tabbles.OutlookAddIn
             {
                 try
                 {
-                    var pipeServer = new NamedPipeServerStream("TABBLES_PIPE_TO_OUTLOOK", PipeDirection.InOut); // inout per prevenire il bug che succedeva nell'altro verso. cioè, con solo in, dà unauthorizedaccessexception.
+                    using (var pipeServer = new NamedPipeServerStream("TABBLES_PIPE_TO_OUTLOOK", PipeDirection.InOut)) // inout per prevenire il bug che succedeva nell'altro verso. cioè, con solo in, dà unauthorizedaccessexception.
+                    {
+                        Logger.Log("Waiting for Tabbles to connect to outlook pipe...");
+                        pipeServer.WaitForConnection(); //blocking
 
-                    Logger.Log("Waiting for Tabbles to connect to outlook pipe...");
-                    pipeServer.WaitForConnection(); //blocking
+                        Logger.Log("Connection established.");
 
-                    Logger.Log("Connection established.");
+                        var xdoc = XDocument.Load(pipeServer);
 
-                    var xdoc = XDocument.Load(pipeServer);
-                    handleMessageFromTabbles(xdoc);
+                        handleMessageFromTabbles(xdoc);
+                    }
 
 
                 }
