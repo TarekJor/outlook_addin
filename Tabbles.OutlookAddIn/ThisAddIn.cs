@@ -485,7 +485,7 @@ namespace Tabbles.OutlookAddIn
                         //  Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
 
                         string folderStr = string.Format("'{0}'", rootFolder.FolderPath);
-                        var olSearch = Application.AdvancedSearch(folderStr, filterSql.ToString(), true, "Sujay Search");
+                        var olSearch = Application.AdvancedSearch(Scope: folderStr, Filter: filterSql.ToString(), SearchSubFolders: true, Tag: "Tabbles Search");
                         //     olSearchFolder = olSearch.Save("Sujay Search");
 
                         //Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
