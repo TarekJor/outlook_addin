@@ -87,6 +87,8 @@ namespace Tabbles.OutlookAddIn
                 this.listenerThread = new Thread(ListenTabblesEvents);
                 this.listenerThread.Start();
 
+                Application.AdvancedSearchComplete += new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
+
                 //  if (!RegistryManager.IsSyncPerformed() && !RegistryManager.IsDontAskForSync())
 
                 //StartSyncThread();
@@ -489,7 +491,7 @@ namespace Tabbles.OutlookAddIn
                         //Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
 
                         //store.OnSearchComplete += store_OnSearchComplete;
-                        Application.AdvancedSearchComplete += new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
+                        
 
 
                         MAPIFolder olFolderFromID = olNS.GetFolderFromID(rootFolder.EntryID, rootFolder.StoreID);
