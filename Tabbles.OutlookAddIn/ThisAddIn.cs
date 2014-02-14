@@ -456,7 +456,7 @@ namespace Tabbles.OutlookAddIn
             //--------------------------------------------------------------------------------------
             #endregion
 
-            var showResults = new System.Action(() =>
+            var performSearch = new System.Action(() =>
                 {
                     try
                     {
@@ -521,12 +521,12 @@ namespace Tabbles.OutlookAddIn
                 }
 
                 //in case if there is a search folder
-                this.folderManager.RemoveFolderByName(folders: searchFolders, name: SearchResultsFolderName, callback: showResults);
+                this.folderManager.RemoveFolderByName(folders: searchFolders, name: SearchResultsFolderName, callback: performSearch);
             }
             else
             {
                 //in case if there is no any search folder
-                showResults ();
+                performSearch ();
             }
 
             return;
@@ -578,7 +578,7 @@ namespace Tabbles.OutlookAddIn
                     {
                         searchFolders = aFolder.Store.GetSearchFolders();
 
-                        System.Action showResultsAction = new System.Action(() =>
+                        var showResultsAction = new System.Action(() =>
                             {
                                 try
                                 {
