@@ -13,7 +13,7 @@ using Res = Tabbles.OutlookAddIn.Properties.Resources;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Windows.Media;
-//using Outlook = Microsoft.Office.Interop.Outlook;
+using Outlook = Microsoft.Office.Interop.Outlook;
 
 using System.Xml.Linq;
 
@@ -64,7 +64,7 @@ namespace Tabbles.OutlookAddIn
                 //xmlFileManager.CreateSettingsFile();
 
                 this.menuManager = new MenuManager(this.Application);
-            
+
                 this.menuManager.Ribbon = this.ribbon;
                 ribbon.mMenuManager = menuManager;
 
@@ -87,7 +87,7 @@ namespace Tabbles.OutlookAddIn
                 this.listenerThread = new Thread(ListenTabblesEvents);
                 this.listenerThread.Start();
 
-                Application.AdvancedSearchComplete += new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
+                //Application.AdvancedSearchComplete += new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
 
                 //  if (!RegistryManager.IsSyncPerformed() && !RegistryManager.IsDontAskForSync())
 
@@ -116,8 +116,8 @@ namespace Tabbles.OutlookAddIn
         protected override IRibbonExtensibility CreateRibbonExtensibilityObject()
         {
             this.ribbon = new TabblesRibbon();
-            
-            
+
+
 
             return this.ribbon;
         }
@@ -295,15 +295,16 @@ namespace Tabbles.OutlookAddIn
                     }
 
 
-                    var tagnames = (from tag in tags 
-                                        select tag.Attribute("name").Value );
+                    var tagnames = (from tag in tags
+                                    select tag.Attribute("name").Value);
                     var newCats = currentCategories.Except<string>(tagnames).ToList();
 
                     if (newCats.Any())
                     {
                         mail.Categories = newCats.Aggregate((a, b) => a + ";" + b);
                     }
-                    else{
+                    else
+                    {
 
                         mail.Categories = null;
                     }
@@ -404,130 +405,140 @@ namespace Tabbles.OutlookAddIn
 
         public void SearchByCategories(IEnumerable<string> categories)
         {
-            Folder currentFolder = (Folder)Application.ActiveExplorer().CurrentFolder;
+
+            Outlook.Explorer explorer = Application.Explorers.Add(
+                   Application.Session.GetDefaultFolder(
+                   Outlook.OlDefaultFolders.olFolderInbox)
+                   as Outlook.Folder,
+                   Outlook.OlFolderDisplayMode.olFolderDisplayNormal);
+
+            var cats = (from c in categories
+                        select "category:\"" + c + "\"").Aggregate( (a, b) => a + " AND " + b);
+            
+            explorer.Search(cats, Outlook.OlSearchScope.olSearchScopeAllFolders);
+            explorer.Display();
+
+
+            //Folder currentFolder = (Folder)Application.ActiveExplorer().CurrentFolder;
 
 
 
-            Folder rootFolder;
+            //Folder rootFolder;
 
 
-            if (currentFolder != null)
-            {
-                rootFolder = (Folder)currentFolder.Store.GetRootFolder();
-            }
-            else
-            {
-                rootFolder = (Folder)Application.Session.Folders[1];
-            }
+            //if (currentFolder != null)
+            //{
+            //    rootFolder = (Folder)currentFolder.Store.GetRootFolder();
+            //}
+            //else
+            //{
+            //    rootFolder = (Folder)Application.Session.Folders[1];
+            //}
 
 
 
 
-            //example: ("urn:schemas-microsoft-com:office:office#Keywords" = 'aa' OR "urn:schemas-microsoft-com:office:office#Keywords" = 'bb')
-            int count = categories.Count<string>();
-            StringBuilder filterSql = new StringBuilder("(");
-            if (count > 0)
-            {
-                filterSql.AppendFormat("\"urn:schemas-microsoft-com:office:office#Keywords\" = '{0}'", categories.First<string>());
-            }
-            else
-            {
-                return;
-            }
+            ////example: ("urn:schemas-microsoft-com:office:office#Keywords" = 'aa' OR "urn:schemas-microsoft-com:office:office#Keywords" = 'bb')
+            //int count = categories.Count<string>();
+            //StringBuilder filterSql = new StringBuilder("(");
+            //if (count > 0)
+            //{
+            //    filterSql.AppendFormat("\"urn:schemas-microsoft-com:office:office#Keywords\" = '{0}'", categories.First<string>());
+            //}
+            //else
+            //{
+            //    return;
+            //}
 
-            for (int i = 1; i < count; i++)
-            {
-                // andrej aveva messo OR. a me sembra senza senso.
-                filterSql.Append(" AND ").AppendFormat("\"urn:schemas-microsoft-com:office:office#Keywords\" = '{0}'", categories.ElementAt<string>(i));
-            }
-            filterSql.Append(")");
+            //for (int i = 1; i < count; i++)
+            //{
+            //    // andrej aveva messo OR. a me sembra senza senso.
+            //    filterSql.Append(" AND ").AppendFormat("\"urn:schemas-microsoft-com:office:office#Keywords\" = '{0}'", categories.ElementAt<string>(i));
+            //}
+            //filterSql.Append(")");
 
-            #region old comment by andrej
-            //-- We use Redemption instead of these code (together with AdvancedSearchComplete event, see another Commented out section)
-            //-- Currently there is a problem with calling Results.Save() for search on a folder of non-default store
-            //See: http://social.msdn.microsoft.com/Forums/en-US/outlookdev/thread/7d1d3494-988f-4c42-a391-e732b5dfb2c6
+            //#region old comment by andrej
+            ////-- We use Redemption instead of these code (together with AdvancedSearchComplete event, see another Commented out section)
+            ////-- Currently there is a problem with calling Results.Save() for search on a folder of non-default store
+            ////See: http://social.msdn.microsoft.com/Forums/en-US/outlookdev/thread/7d1d3494-988f-4c42-a391-e732b5dfb2c6
 
-            //string folderStr = string.Format("'{0}'", rootFolder.FolderPath);
+            ////string folderStr = string.Format("'{0}'", rootFolder.FolderPath);
 
-            //string logMessage = string.Format("Started search with filter {0} in folder {1} ...", filter.ToString(), folderStr);
-            //this.logger.Log(logMessage);
+            ////string logMessage = string.Format("Started search with filter {0} in folder {1} ...", filter.ToString(), folderStr);
+            ////this.logger.Log(logMessage);
 
-            //Application.AdvancedSearch(folderStr, filter.ToString(), true, "Tabbles categories");
-            //--------------------------------------------------------------------------------------
-            #endregion
+            ////Application.AdvancedSearch(folderStr, filter.ToString(), true, "Tabbles categories");
+            ////--------------------------------------------------------------------------------------
+            //#endregion
 
-            var performSearch = new System.Action(() =>
-                {
-                    try
-                    {
-                        #region Sujay
-                        //if (this.rdoSession == null)
-                        //{
-                        //    this.rdoSession = RedemptionLoader.new_RDOSession();
-                        //}
-                        //if (!this.rdoSession.LoggedOn)
-                        //{
-                        //    this.rdoSession.Logon();
-                        //}
+            //var performSearch = new System.Action(() =>
+            //    {
+            //            #region Sujay
+            //            //if (this.rdoSession == null)
+            //            //{
+            //            //    this.rdoSession = RedemptionLoader.new_RDOSession();
+            //            //}
+            //            //if (!this.rdoSession.LoggedOn)
+            //            //{
+            //            //    this.rdoSession.Logon();
+            //            //}
 
-                        //RDOStore2 store = (RDOStore2)this.rdoSession.GetStoreFromID(rootFolder.StoreID);
+            //            //RDOStore2 store = (RDOStore2)this.rdoSession.GetStoreFromID(rootFolder.StoreID);
 
-                        //oInbox = oApp.GetNamespace("MAPI").GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox);
+            //            //oInbox = oApp.GetNamespace("MAPI").GetDefaultFolder(Outlook.OlDefaultFolders.olFolderInbox);
 
 
-                        //NameSpace olNS = this.Application.GetNamespace("MAPI");
-                        //Store olStore = olNS.GetStoreFromID(rootFolder.StoreID);
+            //            //NameSpace olNS = this.Application.GetNamespace("MAPI");
+            //            //Store olStore = olNS.GetStoreFromID(rootFolder.StoreID);
 
-                        //MAPIFolder olSearchFolder;
-                        
-                        //  olStore.
+            //            //MAPIFolder olSearchFolder;
 
-                        //  Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
+            //            //  olStore.
 
-                        string folderStr = string.Format("'{0}'", rootFolder.FolderPath);
-                        var olSearch = Application.AdvancedSearch(Scope: folderStr, Filter: filterSql.ToString(), SearchSubFolders: true, Tag: "Tabbles Search");
-                        //     olSearchFolder = olSearch.Save("Sujay Search");
+            //            //  Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
 
-                        //Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
+            //            string folderStr = string.Format("'{0}'", rootFolder.FolderPath);
+            //            var olSearch = Application.AdvancedSearch(Scope: folderStr, Filter: filterSql.ToString(), SearchSubFolders: true, Tag: SearchResultsFolderName);
+            //            olSearch.Save(SearchResultsFolderName);
 
-                        //store.OnSearchComplete += store_OnSearchComplete;
-                        
+            //            //     olSearchFolder = olSearch.Save("Sujay Search");
 
+            //            //Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
 
-                        //MAPIFolder olFolderFromID = olNS.GetFolderFromID(rootFolder.EntryID, rootFolder.StoreID);
+            //            //store.OnSearchComplete += store_OnSearchComplete;
 
 
-                        //RDOFolder folder = this.rdoSession.GetFolderFromID(rootFolder.EntryID, rootFolder.StoreID);
 
-                        // Sujay code
-
-                        //store.Searches.AddCustom(SearchResultsFolderName, filterSql.ToString(), folder, true); 
+            //            //MAPIFolder olFolderFromID = olNS.GetFolderFromID(rootFolder.EntryID, rootFolder.StoreID);
 
 
-                        #endregion
-                    }
-                    catch (System.Exception ex)
-                    {
-                        Logger.Log("Exception occurred while saving and showing search results: " + ex.ToString());
-                    }
-                });
+            //            //RDOFolder folder = this.rdoSession.GetFolderFromID(rootFolder.EntryID, rootFolder.StoreID);
 
-            Folders searchFolders = rootFolder.Store.GetSearchFolders();
-            if (searchFolders != null)
-            {
-                if (this.folderManager == null)
-                {
-                    this.folderManager = new FolderManager();
-                }
+            //            // Sujay code
 
-                //in case if there is a search folder
-                this.folderManager.RemoveFolderByName(folders: searchFolders, name: SearchResultsFolderName, callback: performSearch);
-            }
-            else
-            {
-                //in case if there is no any search folder
-                performSearch ();
-            }
+            //            //store.Searches.AddCustom(SearchResultsFolderName, filterSql.ToString(), folder, true); 
+
+
+            //            #endregion
+
+            //    });
+
+            //Folders searchFolders = rootFolder.Store.GetSearchFolders();
+            ////if (searchFolders != null)
+            ////{
+            ////    if (this.folderManager == null)
+            ////    {
+            ////        this.folderManager = new FolderManager();
+            ////    }
+
+            ////    //in case if there is a search folder
+            ////    this.folderManager.RemoveFolderByName(folders: searchFolders, name: SearchResultsFolderName, callback: performSearch);
+            ////}
+            ////else
+            ////{
+            //    //in case if there is no any search folder
+            //    performSearch();
+            ////}
 
             return;
         }
@@ -549,78 +560,72 @@ namespace Tabbles.OutlookAddIn
         #region Commented out
         //see comment in SearchByCategories() for the explanation
 
-        private void Application_AdvancedSearchComplete(Search search)
-        {
-            #region Sujay Comments
-            //string logMessage = string.Format("Search is completed with {0} results.", search.Results.Count.ToString());
-            ////this.logger.Log(logMessage);
+        //private void Application_AdvancedSearchComplete(Search search)
+        //{
+        //    #region Sujay Comments
+        //    //string logMessage = string.Format("Search is completed with {0} results.", search.Results.Count.ToString());
+        //    ////this.logger.Log(logMessage);
 
-            //if (search.Results.Count != 0)
-            //{
-            //    search.Save("Sujay Search");
-            //    return;
-            //}
+        //    //if (search.Results.Count != 0)
+        //    //{
+        //    //    search.Save("Sujay Search");
+        //    //    return;
+        //    //}
 
-            if (search.Results.Count == 0)
-            {
-                MessageBox.Show(Res.MsgNoResultsFound);
-            }
-            else
-            {
-                //search.Save("Sujay Search");
+        //    if (search.Results.Count == 0)
+        //    {
+        //        MessageBox.Show(Res.MsgNoResultsFound);
+        //    }
+        //    else
+        //    {
+        //        //search.Save("Sujay Search");
 
-                Folders searchFolders = null;
-                MailItem aMail = search.Results[1] as MailItem;
-                if (aMail != null)
-                {
-                    Folder aFolder = aMail.Parent as Folder;
-                    if (aFolder != null)
-                    {
-                        searchFolders = aFolder.Store.GetSearchFolders();
+        //        Folders searchFolders = null;
+        //        MailItem aMail = search.Results[1] as MailItem;
+        //        Folder aFolder = aMail.Parent as Folder;
+        //        searchFolders = aFolder.Store.GetSearchFolders();
 
-                        var showResultsAction = new System.Action(() =>
-                            {
-                                    Folder searchResultsFolder = (Folder)search.Save(SearchResultsFolderName);
-                                    Application.ActiveExplorer().CurrentFolder = searchResultsFolder;
-                            });
+        //        var showResultsAction = new System.Action(() =>
+        //            {
+        //                Folder searchResultsFolder = (Folder)search.Save(SearchResultsFolderName);
+        //                Application.ActiveExplorer().CurrentFolder = searchResultsFolder;
+        //            });
 
-                        if (searchFolders != null)
-                        {
-                            if (this.folderManager == null)
-                            {
-                                this.folderManager = new FolderManager();
-                            }
+        //        //if (searchFolders != null)
+        //        //{
+        //        //    if (this.folderManager == null)
+        //        //    {
+        //        //        this.folderManager = new FolderManager();
+        //        //    }
 
-                            //in case if there is a search folder
-                            this.folderManager.RemoveFolderByName(searchFolders, SearchResultsFolderName, showResultsAction);
-                        }
-                        else
-                        {
-                            //in case if there is no any search folder
-                            showResultsAction();
-                        }
+        //        //    //in case if there is a search folder
+        //        //    this.folderManager.RemoveFolderByName(searchFolders, SearchResultsFolderName, showResultsAction);
+        //        //}
+        //        //else
+        //        //{
+        //        //in case if there is no any search folder
+        //        showResultsAction();
+        //        //}
 
-                        return;
-                    }
-                }
+        //        return;
 
-                //give some response in any case
-                MessageBox.Show(Res.MsgNoResultsFound);
-            }
-            #endregion
+        //        //give some response in any case
+        //        //MessageBox.Show(Res.MsgNoResultsFound);
+        //    }
+        //    #endregion
 
-            //MessageBox.Show(" In advanced search");
+        //    //MessageBox.Show(" In advanced search");
 
-            //Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
+        //    //Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
 
-            //  Application.ActiveExplorer().CurrentView = searchFolder.Application.ActiveExplorer().CurrentView;//  = searchFolder.f;
-        }
+        //    //  Application.ActiveExplorer().CurrentView = searchFolder.Application.ActiveExplorer().CurrentView;//  = searchFolder.f;
+        //}
         #endregion
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
 
-            Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
+            //Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
             Logger.Dispose();
         }
 
