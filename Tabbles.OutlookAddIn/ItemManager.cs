@@ -26,39 +26,39 @@ namespace Tabbles.OutlookAddIn
         /// </summary>
         /// <param name="mail"></param>
         /// <param name="initAction">Used to have a syncronized init and callback actions</param>
-        /// <param name="callbackAction"></param>
-        public void SaveMailWithCallback(MailItem mail, System.Action callbackAction)
-        {
-            lock (LockObj)
-            {
-                Folder folder = (Folder)mail.Parent;
-                if (folder != null && folder.Items != null)
-                {
-                    string folderId = folder.EntryID;
-                    if (this.itemsActionsDict.ContainsKey(folderId))
-                    {
-                        if (this.mailsRemaining.ContainsKey(folderId)) //100% should be true
-                        {
-                            this.mailsRemaining[folderId].Add(mail.EntryID);
-                        }
-                    }
-                    else
-                    {
-                        ItemsActionStruct itemsAction = new ItemsActionStruct()
-                        {
-                            Items = folder.Items,
-                            Action = callbackAction
-                        };
-                        this.itemsActionsDict.Add(folderId, itemsAction);
-                        itemsAction.Items.ItemChange += NotifyItemChanged;
+        ///// <param name="callbackAction"></param>
+        //public void SaveMailWithCallback(MailItem mail, System.Action callbackAction)
+        //{
+        //    lock (LockObj)
+        //    {
+        //        Folder folder = (Folder)mail.Parent;
+        //        if (folder != null && folder.Items != null)
+        //        {
+        //            string folderId = folder.EntryID;
+        //            if (this.itemsActionsDict.ContainsKey(folderId))
+        //            {
+        //                if (this.mailsRemaining.ContainsKey(folderId)) //100% should be true
+        //                {
+        //                    this.mailsRemaining[folderId].Add(mail.EntryID);
+        //                }
+        //            }
+        //            else
+        //            {
+        //                ItemsActionStruct itemsAction = new ItemsActionStruct()
+        //                {
+        //                    Items = folder.Items,
+        //                    Action = callbackAction
+        //                };
+        //                this.itemsActionsDict.Add(folderId, itemsAction);
+        //                itemsAction.Items.ItemChange += NotifyItemChanged;
 
-                        this.mailsRemaining[folderId] = new List<string>() { mail.EntryID };
-                    }
-                }
-            }
+        //                this.mailsRemaining[folderId] = new List<string>() { mail.EntryID };
+        //            }
+        //        }
+        //    }
 
-            mail.Save();
-        }
+        //    mail.Save();
+        //}
 
         private void NotifyItemChanged(object item)
         {
