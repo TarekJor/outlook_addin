@@ -543,19 +543,19 @@ namespace Tabbles.OutlookAddIn
             return;
         }
 
-        private void store_OnSearchComplete(string searchFolderID)
-        {
-            #region Sujay
-            //Folder searchFolder = (Folder)Application.Session.GetFolderFromID(searchFolderID);
-            //if (this.rdoSession != null && this.rdoSession.LoggedOn)
-            //{
-            //    RDOStore2 store = (RDOStore2)this.rdoSession.GetStoreFromID(searchFolder.StoreID);
-            //    store.OnSearchComplete -= store_OnSearchComplete;
-            //}
+        //private void store_OnSearchComplete(string searchFolderID)
+        //{
+        //    #region Sujay
+        //    //Folder searchFolder = (Folder)Application.Session.GetFolderFromID(searchFolderID);
+        //    //if (this.rdoSession != null && this.rdoSession.LoggedOn)
+        //    //{
+        //    //    RDOStore2 store = (RDOStore2)this.rdoSession.GetStoreFromID(searchFolder.StoreID);
+        //    //    store.OnSearchComplete -= store_OnSearchComplete;
+        //    //}
 
-            //Application.ActiveExplorer().CurrentFolder = searchFolder; 
-            #endregion
-        }
+        //    //Application.ActiveExplorer().CurrentFolder = searchFolder; 
+        //    #endregion
+        //}
 
         #region Commented out
         //see comment in SearchByCategories() for the explanation
