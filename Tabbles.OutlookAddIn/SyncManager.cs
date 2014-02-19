@@ -96,7 +96,7 @@ namespace Tabbles.OutlookAddIn
                     }
 
                     int totalCount = SyncCategorizedItems(folder);
-                    Logger.Log(string.Format("{0} items were synced in '{1}' folder.", totalCount, folder.Name));
+                    Log.log(string.Format("{0} items were synced in '{1}' folder.", totalCount, folder.Name));
 
                     Thread.Sleep(20); //Take a little break to make Outlook responsive
                 }

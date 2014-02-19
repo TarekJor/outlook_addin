@@ -241,7 +241,7 @@
       <DependentUpon>Installer.cs</DependentUpon>
     </Compile>
     <Compile Include="ItemManager.cs" />
-    <Compile Include="Logger.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="MenuManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -250,6 +250,7 @@
     <Compile Include="RegistryManager.cs" />
     <Compile Include="SyncManager.cs" />
     <Compile Include="TabblesRibbon.cs" />
+    <Compile Include="ThreadUtils.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="FolderManager.cs" />
     <Compile Include="XMLFileManager.cs" />

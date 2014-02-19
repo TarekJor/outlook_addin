@@ -46,7 +46,7 @@ namespace Tabbles.OutlookAddIn
             }
             catch (Exception ex)
             {
-                Logger.Log(ex.ToString());
+                Log.log(ex.ToString());
                 //will return false
             }
 
@@ -65,7 +65,7 @@ namespace Tabbles.OutlookAddIn
             }
             catch (Exception ex)
             {
-                Logger.Log(ex.ToString());
+                Log.log(ex.ToString());
             }
         }
     }

@@ -56,7 +56,7 @@ namespace Tabbles.OutlookAddIn
                 //RedemptionLoader.DllLocation32Bit = redemptionDllPath + "Redemption.dll";
                 //RedemptionLoader.DllLocation64Bit = redemptionDllPath + "Redemption64.dll";
 
-                Logger.Log("Outlook plugin initialized.");
+                Log.log("Outlook plugin initialized.");
 
 
                 //SUJAYXML
@@ -126,37 +126,11 @@ namespace Tabbles.OutlookAddIn
 
                 }
 
-                ////var ds = Application.Session.DefaultStore;
-                //foreach (Folder f in mFolders)
-                //{
-                //    var it = f.Items;
-                //    mItems.Add( it); // fissare questo è fondamentale! se uso f.Items ogni volta non funziona. http://www.outlookbanter.com/outlook-vba/7399-mapi-folder-items-itemchange-event.html
-                //    //var name = f.Name;
-                //    //mItems.Add( items); // prevent garbage collection
-                    
-                //    it.ItemChange += Items_ItemChange;
-
-                //    it.ItemAdd += mItems_ItemAdd;
-                //    it.ItemRemove += mItems_ItemRemove;
-
-                    
-                //    //foreach (var x in f.Items)
-                //    //{
-                //    //    if (x is MailItem)
-                //    //    {
-                //    //        var x2 = (MailItem)x;
-                //    //        mMails.Add(x2);
-
-                //    //        x2.PropertyChange += x2_PropertyChange;
-
-                //    //    }
-
-                //    //}
-                //}
+              
             }
             catch (System.Exception ex)
             {
-                Logger.Log(ex.ToString());
+                Log.log(ex.ToString());
             }
         }
 
@@ -415,11 +389,11 @@ namespace Tabbles.OutlookAddIn
             //}
             else if (root.Name.LocalName == "tag_deleted")
             {
-                Logger.Log("detected ak deleted");
+                Log.log("detected ak deleted");
             }
             else
             {
-                Logger.Log("message from Tabbles not recognized: " + root.ToString());
+                Log.log("message from Tabbles not recognized: " + root.ToString());
             }
         }
 
@@ -433,10 +407,10 @@ namespace Tabbles.OutlookAddIn
                 {
                     using (var pipeServer = new NamedPipeServerStream("TABBLES_PIPE_TO_OUTLOOK", PipeDirection.InOut)) // inout per prevenire il bug che succedeva nell'altro verso. cioè, con solo in, dà unauthorizedaccessexception.
                     {
-                        Logger.Log("Waiting for Tabbles to connect to outlook pipe...");
+                        Log.log("Waiting for Tabbles to connect to outlook pipe...");
                         pipeServer.WaitForConnection(); //blocking
 
-                        Logger.Log("Connection established.");
+                        Log.log("Connection established.");
 
                         var xdoc = XDocument.Load(pipeServer);
 
@@ -447,7 +421,7 @@ namespace Tabbles.OutlookAddIn
                 }
                 catch (System.Exception e)
                 {
-                    Logger.Log("exception - restarting pipe server");
+                    Log.log("exception - restarting pipe server");
                 }
             }
 
@@ -691,7 +665,7 @@ namespace Tabbles.OutlookAddIn
         {
 
             //Application.AdvancedSearchComplete -= new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
-            Logger.Dispose();
+            //Logger.Dispose();
         }
 
 
