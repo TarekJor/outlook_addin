@@ -46,9 +46,6 @@ namespace Tabbles.OutlookAddIn
         private BinaryFormatter formatter = new BinaryFormatter();
         private Thread listenerThread;
 
-        Outlook.Application mApplication;
-        Outlook.NameSpace mSession;
-        Outlook.Folders mFolders;
         
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
@@ -68,9 +65,9 @@ namespace Tabbles.OutlookAddIn
                 // SUJAYXML
                 //xmlFileManager.CreateSettingsFile();
 
-                mApplication = this.Application;
+                
 
-                this.menuManager = new MenuManager(mApplication);
+                this.menuManager = new MenuManager(this.Application);
 
                 this.menuManager.Ribbon = this.ribbon;
                 ribbon.mMenuManager = menuManager;
@@ -78,11 +75,11 @@ namespace Tabbles.OutlookAddIn
                 this.itemManager = new ItemManager();
 
 
-                mSession = mApplication.Session;
+                var lSession = Application.Session;
 
-                mFolders = mSession.Folders;
+                
 
-                this.syncManager = new SyncManager(mFolders);
+                this.syncManager = new SyncManager(lSession.Folders);
                 this.syncManager.SendEmailCategories += this.menuManager.SendEmailCategories;
 
                 //this.menuManager.StartSync += delegate
@@ -107,34 +104,55 @@ namespace Tabbles.OutlookAddIn
                 //    StartSyncThread();
                 //}
 
+                { // recursively set itemchange handlers for all folders
 
-                //var ds = Application.Session.DefaultStore;
-                foreach (Folder f in mFolders)
-                {
-                    var it = f.Items;
-                    mItems.Add( it); // fissare questo è fondamentale! se uso f.Items ogni volta non funziona. http://www.outlookbanter.com/outlook-vba/7399-mapi-folder-items-itemchange-event.html
-                    //var name = f.Name;
-                    //mItems.Add( items); // prevent garbage collection
-                    
-                    it.ItemChange += Items_ItemChange;
+                    var frontier = new Queue<Folder>();
+                    foreach (Folder f in lSession.Folders)
+                    {
+                        frontier.Enqueue(f);
+                    }
 
-                    it.ItemAdd += mItems_ItemAdd;
-                    it.ItemRemove += mItems_ItemRemove;
+                    while (frontier.Any())
+                    {
+                        var curFolder = frontier.Dequeue();
+                        curFolder.Items.ItemChange += Items_ItemChange;
 
-                    
-                    //foreach (var x in f.Items)
-                    //{
-                    //    if (x is MailItem)
-                    //    {
-                    //        var x2 = (MailItem)x;
-                    //        mMails.Add(x2);
+                        foreach (Folder ch in curFolder.Folders)
+                        {
+                            frontier.Enqueue(ch);
+                        }
+                    }
 
-                    //        x2.PropertyChange += x2_PropertyChange;
 
-                    //    }
-
-                    //}
                 }
+
+                ////var ds = Application.Session.DefaultStore;
+                //foreach (Folder f in mFolders)
+                //{
+                //    var it = f.Items;
+                //    mItems.Add( it); // fissare questo è fondamentale! se uso f.Items ogni volta non funziona. http://www.outlookbanter.com/outlook-vba/7399-mapi-folder-items-itemchange-event.html
+                //    //var name = f.Name;
+                //    //mItems.Add( items); // prevent garbage collection
+                    
+                //    it.ItemChange += Items_ItemChange;
+
+                //    it.ItemAdd += mItems_ItemAdd;
+                //    it.ItemRemove += mItems_ItemRemove;
+
+                    
+                //    //foreach (var x in f.Items)
+                //    //{
+                //    //    if (x is MailItem)
+                //    //    {
+                //    //        var x2 = (MailItem)x;
+                //    //        mMails.Add(x2);
+
+                //    //        x2.PropertyChange += x2_PropertyChange;
+
+                //    //    }
+
+                //    //}
+                //}
             }
             catch (System.Exception ex)
             {
@@ -142,30 +160,16 @@ namespace Tabbles.OutlookAddIn
             }
         }
 
-        void mItems_ItemRemove()
-        {
-            var y = 5;
-        }
-
-        void mItems_ItemAdd(object Item)
-        {
-            var y = 5;
-        }
-
-        void x2_PropertyChange(string Name)
-        {
-            var y = 3;
-        }
-
+     
         //static List<Folder> mFolders = new HashSet<Folder>(); // prevents garbage collection. otherwise itemchange is not fired.
 
-        List<Items> mItems = new List<Items>();
-        MAPIFolder mFolder;
-        HashSet<MailItem> mMails = new HashSet<MailItem>(); // prevents garbage collection. otherwise itemchange is not fired.
 
         void Items_ItemChange(object Item)
         {
-            var y = 3;
+            if (Item is MailItem)
+            {
+                var y = 3;
+            }
         }
 
         private void StartSyncThread()
