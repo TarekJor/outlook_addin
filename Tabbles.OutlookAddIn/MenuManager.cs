@@ -144,8 +144,11 @@ namespace Tabbles.OutlookAddIn
         private void AddExplorerListeners(Explorer explorer)
         {
             this.explorerList.Add(explorer);
-            explorer.BeforeItemPaste += TrackEmailMove;
+            
             explorer.SelectionChange += UpdateSelectedEmails;
+            explorer.BeforeItemCopy += explorer_BeforeItemCopy;
+            explorer.BeforeItemCut += explorer_BeforeItemCut;
+            explorer.BeforeItemPaste += explorer_BeforeItemPaste;
 
             explorer.FolderSwitch += () =>
                 {
@@ -153,6 +156,23 @@ namespace Tabbles.OutlookAddIn
                 };
         }
 
+        void explorer_BeforeItemPaste(ref object ClipboardContent, MAPIFolder Target, ref bool Cancel)
+        {
+            var cl = (Selection)ClipboardContent;
+            var y = 5;
+        }
+
+        void explorer_BeforeItemCut(ref bool Cancel)
+        {
+            var y = 5;
+        }
+
+        void explorer_BeforeItemCopy(ref bool Cancel)
+        {
+            var y = 5;
+        }
+
+        // era chiamata in explorer_BeforeItemPaste
         private void TrackEmailMove(ref object clipboardContent, MAPIFolder target, ref bool cancel)
         {
             if (!this.trackItemMove) //prevent infinite loop
