@@ -46,7 +46,7 @@ namespace Tabbles.OutlookAddIn
         private BinaryFormatter formatter = new BinaryFormatter();
         private Thread listenerThread;
 
-        
+
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
@@ -65,7 +65,7 @@ namespace Tabbles.OutlookAddIn
                 // SUJAYXML
                 //xmlFileManager.CreateSettingsFile();
 
-                
+
 
                 this.menuManager = new MenuManager(this.Application);
 
@@ -77,7 +77,7 @@ namespace Tabbles.OutlookAddIn
 
                 var lSession = Application.Session;
 
-                
+
 
                 this.syncManager = new SyncManager(lSession.Folders);
                 this.syncManager.SendEmailCategories += this.menuManager.SendEmailCategories;
@@ -126,7 +126,7 @@ namespace Tabbles.OutlookAddIn
 
                 }
 
-              
+
             }
             catch (System.Exception ex)
             {
@@ -134,15 +134,49 @@ namespace Tabbles.OutlookAddIn
             }
         }
 
-     
+
         //static List<Folder> mFolders = new HashSet<Folder>(); // prevents garbage collection. otherwise itemchange is not fired.
 
+
+        void sendMessageToTabblesUpdateTagsForEmails(IEnumerable<MailItem> mails)
+        {
+
+            //var atSubj = new XAttribute("subject", m.Subject);
+            //var atCmdLine = new XAttribute("command_line", outlookPrefix + m.EntryID);
+            //var ats = new[] { atSubj, atCmdLine };
+
+            var emails = (from m in mails
+                          let cats = Utils.GetCategories(m)
+                          let els = (from c in cats
+                                       let category = this.Application.Session.Categories[c]
+
+                                       let col = Utils.GetRgbFromOutlookColor(category.Color)
+                                       let colAt = new XAttribute("color", col)
+                                       let nameAt = new XAttribute("name", c)
+                                       let ats = new object [] { colAt, nameAt }
+                                       select new XElement("tag", ats))
+                          let cmdLine = new XAttribute("command_line", menuManager.outlookPrefix + m.EntryID)
+                          let subject = new XAttribute("subject", m.Subject)
+                          let ats = new object[] { cmdLine, subject}
+                          let atsAndEls = els.Concat(ats)
+                          select new XElement("email", atsAndEls)).ToArray();
+
+            var xelRoot = new XElement("update_tags_for_these_emails", emails);
+            var xdoc = new XDocument(xelRoot);
+            //var text = xdoc.ToString();
+            MenuManager.sendXmlToTabbles(xdoc);
+        }
 
         void Items_ItemChange(object Item)
         {
             if (Item is MailItem)
             {
-                var y = 3;
+                ThreadUtils.execInThreadForceNewThread(() =>
+                {
+
+                    var emails = new MailItem[] { (MailItem)Item };
+                    sendMessageToTabblesUpdateTagsForEmails(emails);
+                });
             }
         }
 
@@ -452,8 +486,8 @@ namespace Tabbles.OutlookAddIn
                    Outlook.OlFolderDisplayMode.olFolderDisplayNormal);
 
             var cats = (from c in categories
-                        select "category:\"" + c + "\"").Aggregate( (a, b) => a + " AND " + b);
-            
+                        select "category:\"" + c + "\"").Aggregate((a, b) => a + " AND " + b);
+
             explorer.Search(cats, Outlook.OlSearchScope.olSearchScopeAllFolders);
             explorer.Display();
 

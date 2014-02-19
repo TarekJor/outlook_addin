@@ -42,7 +42,7 @@ namespace Tabbles.OutlookAddIn
         //public readonly object syncObj = new object();
 
         private OutlookVersion outlookVersion;
-        private string outlookPrefix;
+        public string outlookPrefix;
         private CultureInfo outlookCulture;
 
         private Application outlookApp;
@@ -419,16 +419,21 @@ namespace Tabbles.OutlookAddIn
             }
         }
 
+        private static object mLock = new object();
+
         public static void sendXmlToTabbles(XDocument xdoc)
         {
             try
             {
-                // todo add sync? only one thread at a time must do this.
-                using (var pc = new NamedPipeClientStream("TABBLES_PIPE_FROM_OUTLOOK"))
+                lock (mLock) // only one thread at a time must attempt this. Otherwise pipe crashes.
                 {
-                    pc.Connect(500);
-                    xdoc.Save(pc);
+                 
+                    using (var pc = new NamedPipeClientStream("TABBLES_PIPE_FROM_OUTLOOK"))
+                    {
+                        pc.Connect(500);
+                        xdoc.Save(pc);
 
+                    }
                 }
             }
             catch (TimeoutException)
