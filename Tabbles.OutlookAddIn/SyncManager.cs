@@ -20,7 +20,7 @@ namespace Tabbles.OutlookAddIn
 
         private Folders rootFolders;
 
-        private bool cancel;
+        //private bool cancel;
 
         public event Action<List<string>> SendEmailCategories;
 
@@ -72,7 +72,7 @@ namespace Tabbles.OutlookAddIn
                 if (answer.HasValue && answer.Value)
                 {
                     SyncProgress progressWindow = new SyncProgress(Run);
-                    progressWindow.Cancel += OnCancel;
+                    //progressWindow.Cancel += OnCancel;
                     progressWindow.ShowDialog();
                 }
                 else
@@ -90,10 +90,10 @@ namespace Tabbles.OutlookAddIn
             {
                 foreach (Folder folder in this.rootFolders)
                 {
-                    if (this.cancel)
-                    {
-                        break;
-                    }
+                    //if (this.cancel)
+                    //{
+                    //    break;
+                    //}
 
                     int totalCount = SyncCategorizedItems(folder);
                     Log.log(string.Format("{0} items were synced in '{1}' folder.", totalCount, folder.Name));
@@ -131,10 +131,10 @@ namespace Tabbles.OutlookAddIn
                 Row row;
                 while ((row = table.GetNextRow()) != null)
                 {
-                    if (this.cancel)
-                    {
-                        break;
-                    }
+                    //if (this.cancel)
+                    //{
+                    //    break;
+                    //}
 
                     object[] values = (object[])row.GetValues();
                     if (values.Length == 5 && values[0] is string &&
@@ -167,10 +167,10 @@ namespace Tabbles.OutlookAddIn
 
             foreach (Folder subFolder in subFolders)
             {
-                if (this.cancel)
-                {
-                    break;
-                }
+                //if (this.cancel)
+                //{
+                //    break;
+                //}
 
                 totalCount += SyncCategorizedItems(subFolder);
 
@@ -180,9 +180,9 @@ namespace Tabbles.OutlookAddIn
             return totalCount;
         }
 
-        private void OnCancel(object sender, EventArgs e)
-        {
-            this.cancel = true;
-        }
+        //private void OnCancel(object sender, EventArgs e)
+        //{
+        //    this.cancel = true;
+        //}
     }
 }

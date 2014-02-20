@@ -24,7 +24,7 @@ namespace Tabbles.OutlookAddIn.Controls
     {
         private Action actionToRun;
 
-        public event EventHandler Cancel;
+        //public event EventHandler Cancel;
 
         public SyncProgress(Action actionToRun)
         {
@@ -81,10 +81,10 @@ namespace Tabbles.OutlookAddIn.Controls
             }
             else
             {
-                if (Cancel != null)
-                {
-                    Cancel(this, EventArgs.Empty);
-                }
+            //    if (Cancel != null)
+            //    {
+            //        Cancel(this, EventArgs.Empty);
+            //    }
             }
         }
 
