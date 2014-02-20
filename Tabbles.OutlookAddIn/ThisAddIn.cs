@@ -153,7 +153,8 @@ namespace Tabbles.OutlookAddIn
                                        let col = Utils.GetRgbFromOutlookColor(category.Color)
                                        let colAt = new XAttribute("color", col)
                                        let nameAt = new XAttribute("name", c)
-                                       let ats = new object [] { colAt, nameAt }
+                                       let colorNameAt = (category.Name == null ? null :  new XAttribute("color_name", category.Name))
+                                       let ats = new object [] { colAt, nameAt, colorNameAt }
                                        select new XElement("tag", ats))
                           let cmdLine = new XAttribute("command_line", menuManager.outlookPrefix + m.EntryID)
                           let subject = new XAttribute("subject", m.Subject)
