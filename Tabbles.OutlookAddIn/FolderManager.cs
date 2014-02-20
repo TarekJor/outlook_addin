@@ -8,7 +8,7 @@ namespace Tabbles.OutlookAddIn
 {
     class FolderManager
     {
-        private Folders tmpFolders;
+        //private Folders tmpFolders;
         //private System.Action folderRemoveCallback;
         private object folderRemoveLock = new object();
 

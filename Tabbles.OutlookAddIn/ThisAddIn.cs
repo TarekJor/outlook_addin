@@ -31,7 +31,7 @@ namespace Tabbles.OutlookAddIn
         private const string SearchResultsFolderName = "Tabbles search results";
 
         private MenuManager menuManager;
-        private FolderManager folderManager;
+        //private FolderManager folderManager;
         private ItemManager itemManager;
         private SyncManager syncManager;
         private TabblesRibbon ribbon;

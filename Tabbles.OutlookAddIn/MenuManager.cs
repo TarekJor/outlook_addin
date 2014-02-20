@@ -54,7 +54,7 @@ namespace Tabbles.OutlookAddIn
 
         private List<MailItem> selectedMails;
 
-        private Items currentFolderItems;
+        //private Items currentFolderItems;
 
         //private ISet<string> onceItemChanged;
 
