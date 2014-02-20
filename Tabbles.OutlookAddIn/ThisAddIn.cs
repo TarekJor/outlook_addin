@@ -80,7 +80,9 @@ namespace Tabbles.OutlookAddIn
 
 
                 this.syncManager = new SyncManager(lSession.Folders);
-                this.syncManager.SendEmailCategories += this.menuManager.SendEmailCategories;
+                syncManager.mMenuManager = menuManager;
+
+                //this.syncManager.SendEmailCategories += this.menuManager.SendEmailCategories;
 
                 //this.menuManager.StartSync += delegate
                 //{

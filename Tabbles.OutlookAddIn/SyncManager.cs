@@ -10,10 +10,13 @@ using Res = Tabbles.OutlookAddIn.Properties.Resources;
 
 namespace Tabbles.OutlookAddIn
 {
-    class SyncManager
+    public class SyncManager
     {
         private const string CategorizedMailItemFilter = @"@SQL=""urn:schemas-microsoft-com:office:office#Keywords"" like '%'";
         private const string MessageClassIpmNote = "IPM.Note";
+
+
+        public MenuManager mMenuManager;
 
         // SUJAYXML
        // private XMLFileManager xmlFileManager;
@@ -22,7 +25,7 @@ namespace Tabbles.OutlookAddIn
 
         //private bool cancel;
 
-        public event Action<List<string>> SendEmailCategories;
+        //public event Action<List<string>> SendEmailCategories;
 
         public bool InProcess
         {
@@ -158,9 +161,10 @@ namespace Tabbles.OutlookAddIn
                 subFolders = this.rootFolders;
             }
 
-            if (entryIds != null && entryIds.Count > 0 && SendEmailCategories != null)
+            if (entryIds != null && entryIds.Count > 0 )
             {
-                SendEmailCategories(entryIds);
+                mMenuManager.SendEmailCategories(entryIds);
+                //SendEmailCategories(entryIds);
 
                 totalCount += entryIds.Count;
             }
