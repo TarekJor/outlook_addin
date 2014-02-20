@@ -127,34 +127,34 @@ namespace Tabbles.OutlookAddIn
             this.explorers = this.outlookApp.Explorers;
             this.explorers.NewExplorer += OnNewExplorer;
 
-            FillItemsToListen();
+            //FillItemsToListen();
 
             foreach (Explorer explorer in this.explorers)
             {
-                AddExplorerListeners(explorer);
+                //AddExplorerListeners(explorer);
             }
         }
 
         #region Event handling
         private void OnNewExplorer(Explorer explorer)
         {
-            AddExplorerListeners(explorer);
+            //AddExplorerListeners(explorer);
         }
 
-        private void AddExplorerListeners(Explorer explorer)
-        {
-            this.explorerList.Add(explorer);
+        //private void AddExplorerListeners(Explorer explorer)
+        //{
+        //    this.explorerList.Add(explorer);
             
-            explorer.SelectionChange += UpdateSelectedEmails;
-            explorer.BeforeItemCopy += explorer_BeforeItemCopy;
-            explorer.BeforeItemCut += explorer_BeforeItemCut;
-            explorer.BeforeItemPaste += explorer_BeforeItemPaste;
+        //    explorer.SelectionChange += UpdateSelectedEmails;
+        //    explorer.BeforeItemCopy += explorer_BeforeItemCopy;
+        //    explorer.BeforeItemCut += explorer_BeforeItemCut;
+        //    explorer.BeforeItemPaste += explorer_BeforeItemPaste;
 
-            explorer.FolderSwitch += () =>
-                {
-                    FillItemsToListen();
-                };
-        }
+        //    explorer.FolderSwitch += () =>
+        //        {
+        //            FillItemsToListen();
+        //        };
+        //}
 
         void explorer_BeforeItemPaste(ref object ClipboardContent, MAPIFolder Target, ref bool Cancel)
         {
@@ -593,103 +593,88 @@ namespace Tabbles.OutlookAddIn
             }
         }
 
-        private void FillItemsToListen()
-        {
-            if (this.currentFolderItems != null)
-            {
-                try
-                {
-                    this.currentFolderItems.ItemChange -= Items_ItemChange;
-                }
-                catch (System.Exception)
-                {
-                }
-            }
+        //private void FillItemsToListen()
+        //{
+        //    if (this.currentFolderItems != null)
+        //    {
+        //        try
+        //        {
+        //            this.currentFolderItems.ItemChange -= Items_ItemChange;
+        //        }
+        //        catch (System.Exception)
+        //        {
+        //        }
+        //    }
 
-            Folder currentFolder = (Folder)this.outlookApp.ActiveExplorer().CurrentFolder;
+        //    Folder currentFolder = (Folder)this.outlookApp.ActiveExplorer().CurrentFolder;
 
-            if (currentFolder != null)
-            {
-                this.currentFolderItems = currentFolder.Items;
+        //    if (currentFolder != null)
+        //    {
+        //        this.currentFolderItems = currentFolder.Items;
 
-                //avoid double adding
-                this.currentFolderItems.ItemChange -= Items_ItemChange;
-                this.currentFolderItems.ItemChange += Items_ItemChange;
-            }
-        }
+        //        //avoid double adding
+        //        this.currentFolderItems.ItemChange -= Items_ItemChange;
+        //        this.currentFolderItems.ItemChange += Items_ItemChange;
+        //    }
+        //}
 
-        private void Items_ItemChange(object item)
-        {
-            if (item is MailItem)
-            {
-                MailItem mail = (MailItem)item;
-                string mailId = mail.EntryID;
-                //lock (this.syncObj)
-                {
-                    //if (this.onceItemChanged.Contains(mailId))
-                    //{
-                    //    this.onceItemChanged.Remove(mailId);
-                    //}
-                    //else
-                    if (InternallyChangedMailIds.Contains(mailId))
-                    {
-                        InternallyChangedMailIds.Remove(mailId);
-                        //this.onceItemChanged.Add(mailId);
-                    }
-                    else
-                    {
-                        SendCategoriesToTabbles(mail);
-                        {
-                            //this.onceItemChanged.Add(mailId);
-                        }
-                    }
-                }
-            }
-        }
+        //private void Items_ItemChange(object item)
+        //{
+        //    if (item is MailItem)
+        //    {
+        //        MailItem mail = (MailItem)item;
+        //        string mailId = mail.EntryID;
+        //        //lock (this.syncObj)
+        //        {
+        //            //if (this.onceItemChanged.Contains(mailId))
+        //            //{
+        //            //    this.onceItemChanged.Remove(mailId);
+        //            //}
+        //            //else
+        //            if (InternallyChangedMailIds.Contains(mailId))
+        //            {
+        //                InternallyChangedMailIds.Remove(mailId);
+        //                //this.onceItemChanged.Add(mailId);
+        //            }
+        //            else
+        //            {
+        //                SendCategoriesToTabbles(mail);
+        //                {
+        //                    //this.onceItemChanged.Add(mailId);
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
-        private void SendCategoriesToTabbles(MailItem mail)
-        {
+        //private void SendCategoriesToTabbles(MailItem mail)
+        //{
 
-            var categoriesWithColors = new Dictionary<string, string>();
-            string[] categories = Utils.GetCategories(mail);
-            foreach (string categoryName in categories)
-            {
-                try
-                {
-                    Category category = this.outlookApp.Session.Categories[categoryName];
-                    if (category != null)
-                    {
-                        string categoryRgb = Utils.GetRgbFromOutlookColor(category.Color);
-                        categoriesWithColors[categoryName] = categoryRgb;
-                    }
-                }
-                catch (System.Exception)
-                {
-                    //ignore the category
-                }
-            }
+        //    var categoriesWithColors = new Dictionary<string, string>();
+        //    string[] categories = Utils.GetCategories(mail);
+        //    foreach (string categoryName in categories)
+        //    {
+        //        try
+        //        {
+        //            Category category = this.outlookApp.Session.Categories[categoryName];
+        //            if (category != null)
+        //            {
+        //                string categoryRgb = Utils.GetRgbFromOutlookColor(category.Color);
+        //                categoriesWithColors[categoryName] = categoryRgb;
+        //            }
+        //        }
+        //        catch (System.Exception)
+        //        {
+        //            //ignore the category
+        //        }
+        //    }
 
-            if (!string.IsNullOrEmpty(mail.FlagRequest))
-            {
-                categoriesWithColors[mail.FlagRequest] = Utils.GetRgbForFlagRequest(mail.FlagRequest);
-            }
+        //    if (!string.IsNullOrEmpty(mail.FlagRequest))
+        //    {
+        //        categoriesWithColors[mail.FlagRequest] = Utils.GetRgbForFlagRequest(mail.FlagRequest);
+        //    }
 
-            // todo
-
-            //var message = new GenericChangedSomeCategory
-            //{
-            //    categoriesWithColors = categoriesWithColors,
-            //    gen = new Generic
-            //    {
-            //        name = mail.Subject,
-            //        commandLine = this.outlookPrefix + mail.EntryID,
-            //        icon = new IconOther(),
-            //        showCommandLine = false
-            //    }
-            //};
-
-            //return SendMessageToTabbles(message);
-        }
+        //}
 
         /// <summary>
         /// Adds Entry ID of MailItem to skip listening its changes, for instance if changes are done programmatically.
