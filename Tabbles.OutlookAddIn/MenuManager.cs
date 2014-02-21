@@ -131,7 +131,7 @@ namespace Tabbles.OutlookAddIn
 
             foreach (Explorer explorer in this.explorers)
             {
-                //AddExplorerListeners(explorer);
+                AddExplorerListeners(explorer);
             }
         }
 
