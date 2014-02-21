@@ -158,7 +158,7 @@ namespace Tabbles.OutlookAddIn
 
             var emails = (from m in mails
                           let cats = Utils.GetCategories(m)
-                          where cats.Any()
+                          //where cats.Any() // non posso, altrimenti se tolgo l'ultima categoria non aggiorna in tabbles.
                           let els = (from c in cats
                                        let category = this.Application.Session.Categories[c]
                                      where checkNotNull("3", category)

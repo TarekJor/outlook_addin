@@ -138,23 +138,23 @@ namespace Tabbles.OutlookAddIn
         #region Event handling
         private void OnNewExplorer(Explorer explorer)
         {
-            //AddExplorerListeners(explorer);
+            AddExplorerListeners(explorer);
         }
 
-        //private void AddExplorerListeners(Explorer explorer)
-        //{
-        //    this.explorerList.Add(explorer);
+        private void AddExplorerListeners(Explorer explorer)
+        {
+            this.explorerList.Add(explorer);
             
-        //    explorer.SelectionChange += UpdateSelectedEmails;
-        //    explorer.BeforeItemCopy += explorer_BeforeItemCopy;
-        //    explorer.BeforeItemCut += explorer_BeforeItemCut;
-        //    explorer.BeforeItemPaste += explorer_BeforeItemPaste;
+            explorer.SelectionChange += UpdateSelectedEmails;
+            explorer.BeforeItemCopy += explorer_BeforeItemCopy;
+            explorer.BeforeItemCut += explorer_BeforeItemCut;
+            explorer.BeforeItemPaste += explorer_BeforeItemPaste;
 
-        //    explorer.FolderSwitch += () =>
-        //        {
-        //            FillItemsToListen();
-        //        };
-        //}
+            //explorer.FolderSwitch += () =>
+            //    {
+            //        FillItemsToListen();
+            //    };
+        }
 
         void explorer_BeforeItemPaste(ref object ClipboardContent, MAPIFolder Target, ref bool Cancel)
         {
@@ -435,6 +435,7 @@ namespace Tabbles.OutlookAddIn
 
                     }
                 }
+                Log.log("Message sent to Tabbles successfully: " + xdoc.ToString());
             }
             catch (TimeoutException)
             {
