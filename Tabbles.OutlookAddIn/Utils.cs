@@ -241,6 +241,7 @@ let stringOfException (e: Exception) =
         /// <returns></returns>
         public static string[] GetCategories(MailItem mail)
         {
+            var fl = mail.FlagRequest;
             if (mail.Categories != null)
             {
                 var spl = mail.Categories.Split(CategorySeparator, StringSplitOptions.None);
