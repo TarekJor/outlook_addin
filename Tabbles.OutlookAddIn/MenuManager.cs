@@ -333,13 +333,13 @@ namespace Tabbles.OutlookAddIn
                 openEmailInTabbles.Click += openInTabblesMenuButton_Click;
                 this.buttonList.Add(openEmailInTabbles);
 
-                CommandBarButton tabblesSearch = CreateCommandBarButton(commandBar, Res.MenuTabblesSearch, ButtonIdTabblesSearch, "search");
-                tabblesSearch.Click += tabblesSearch_Click;
-                this.buttonList.Add(tabblesSearch);
+                //CommandBarButton tabblesSearch = CreateCommandBarButton(commandBar, Res.MenuTabblesSearch, ButtonIdTabblesSearch, "search");
+                //tabblesSearch.Click += tabblesSearch_Click;
+                //this.buttonList.Add(tabblesSearch);
 
-                CommandBarButton syncWithTabbles = CreateCommandBarButton(commandBar, Res.MenuSyncWithTabbles, ButtonIdSyncWithTabbles, "sync_with_tabbles");
-                syncWithTabbles.Click += syncWithTabbles_Click;
-                this.buttonList.Add(syncWithTabbles);
+                //CommandBarButton syncWithTabbles = CreateCommandBarButton(commandBar, Res.MenuSyncWithTabbles, ButtonIdSyncWithTabbles, "sync_with_tabbles");
+                //syncWithTabbles.Click += syncWithTabbles_Click;
+                //this.buttonList.Add(syncWithTabbles);
 
                 commandBar.Protection = MsoBarProtection.msoBarNoCustomize;
                 commandBar.Visible = true;
@@ -523,30 +523,30 @@ namespace Tabbles.OutlookAddIn
 
         }
 
-        private void tabblesSearch_Click(CommandBarButton Ctrl, ref bool CancelDefault)
-        {
-            TabblesSearch();
-        }
+        //private void tabblesSearch_Click(CommandBarButton Ctrl, ref bool CancelDefault)
+        //{
+        //    // 
+        //}
 
-        private void TabblesSearch()
-        {
-            // todo
-            //if (SendMessageToTabbles == null)
-            //{
-            //    return;
-            //}
+        //private void TabblesSearch()
+        //{
+        //    // todo
+        //    //if (SendMessageToTabbles == null)
+        //    //{
+        //    //    return;
+        //    //}
 
-            //SendMessageToTabbles(new INeedToOpenSearch());
-        }
+        //    //SendMessageToTabbles(new INeedToOpenSearch());
+        //}
 
-        private void syncWithTabbles_Click(CommandBarButton Ctrl, ref bool CancelDefault)
-        {
-            // todo implem
-            //if (StartSync != null)
-            //{
-            //    StartSync();
-            //}
-        }
+        //private void syncWithTabbles_Click(CommandBarButton Ctrl, ref bool CancelDefault)
+        //{
+        //    // todo implem
+        //    //if (StartSync != null)
+        //    //{
+        //    //    StartSync();
+        //    //}
+        //}
 
         private bool IsAnyEmailSelected(bool fillAtFirst)
         {
