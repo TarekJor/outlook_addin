@@ -188,6 +188,9 @@ namespace Tabbles.OutlookAddIn
         {
 
             var wndPr = new progress();
+            wndPr.pb1.Maximum = 100.0;
+            wndPr.pb1.IsIndeterminate = true;
+            wndPr.lbl1.Text = "Gathering email list...";
             wndPr.Show();
 
             ThreadUtils.execInThreadForceNewThread(() =>
@@ -215,6 +218,10 @@ namespace Tabbles.OutlookAddIn
                         frontier.Enqueue(ch);
                     }
                 }
+
+                ThreadUtils.gui(wndPr, () => { wndPr.pb1.IsIndeterminate = false; });
+
+                          
 
 
                 // ora mando le email a Tabbles

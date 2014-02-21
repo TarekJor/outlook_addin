@@ -7,7 +7,7 @@
     Title="Operation progress" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
     
     <StackPanel  >
-        <TextBlock  Padding="0,10" Margin="8,0,8,0" Text="Operation progress"></TextBlock>
+        <TextBlock Name="lbl1" Padding="0,10" Margin="8,0,8,0" Text="Operation progress"></TextBlock>
         <ProgressBar  Width="300" Height="20" Name="pb1" Margin="8,0,8,0"></ProgressBar>
         <Button  Margin="8" HorizontalAlignment="Right" Padding="8,4" Name="btn_cancel" >
             <TextBlock Text="Cancel"></TextBlock>
