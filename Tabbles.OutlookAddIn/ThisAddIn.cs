@@ -170,6 +170,43 @@ namespace Tabbles.OutlookAddIn
             MenuManager.sendXmlToTabbles(xdoc);
         }
 
+        public void importOutlookTaggingIntoTabbles()
+        {
+            ThreadUtils.execInThreadForceNewThread(() =>
+            {
+                var frontier = new Queue<Folder>();
+                foreach (Folder f in Application.Session.Folders)
+                {
+                    frontier.Enqueue(f);
+                }
+
+                var emails = new Queue<MailItem>();
+                while (frontier.Any())
+                {
+                    var curFolder = frontier.Dequeue();
+                    var emailsInFolder = curFolder.Items;
+                    foreach (MailItem m in emailsInFolder)
+                    {
+                        emails.Enqueue(m);
+                    }
+
+                    foreach (Folder ch in curFolder.Folders)
+                    {
+                        frontier.Enqueue(ch);
+                    }
+                }
+
+
+                // ora mando le email a Tabbles
+                sendMessageToTabblesUpdateTagsForEmails(emails);
+
+
+            });
+
+
+        }
+
+
         void Items_ItemChange(object Item)
         {
             if (Item is MailItem)

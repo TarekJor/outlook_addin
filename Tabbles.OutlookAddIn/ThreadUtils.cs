@@ -55,7 +55,7 @@ namespace Tabbles.OutlookAddIn
                     }
                     catch (Exception e)
                     {
-                        Log.log(">>> execInThread: exception:" + e.GetType().ToString() + ", " + e.Message);
+                        Log.log(">>> execInThread: exception:" + Utils.stringOfException(e));
                     }
 
                 }));
@@ -80,7 +80,7 @@ namespace Tabbles.OutlookAddIn
                 }
                 catch (Exception e)
                 {
-                    Log.log(">>> execInThreadForceNewThread: exception:" + e.GetType().ToString() + ", " + e.Message);
+                    Log.log(">>> execInThreadForceNewThread: exception:" + Utils.stringOfException(e));
                 }
 
             }));

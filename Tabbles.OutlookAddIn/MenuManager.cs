@@ -523,6 +523,7 @@ namespace Tabbles.OutlookAddIn
 
         }
 
+        
         //private void tabblesSearch_Click(CommandBarButton Ctrl, ref bool CancelDefault)
         //{
         //    // 
