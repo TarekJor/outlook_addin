@@ -458,7 +458,7 @@ namespace Tabbles.OutlookAddIn
                 }
                 catch (System.Exception e)
                 {
-                    Log.log("exception - restarting pipe server");
+                    Log.log("exception - restarting pipe server: " + Utils.stringOfException(e));
                 }
             }
 

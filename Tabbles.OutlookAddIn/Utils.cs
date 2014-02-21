@@ -5,11 +5,70 @@ using System.Text;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Microsoft.Win32;
 using Microsoft.Office.Interop.Outlook;
+using System.Runtime.InteropServices;
 
 namespace Tabbles.OutlookAddIn
 {
     public static class Utils
     {
+
+        /*
+         * 
+
+let rec create_message_of_exception (ex: Exception) msg  level = 
+        let hres = Marshal.GetHRForException(ex).ToString()
+
+        let nl = Environment.NewLine + Environment.NewLine
+        let sqlDetail = 
+                match ex with
+                | :? System.Data.SqlClient.SqlException as e ->
+                        "sql exception. Number = " + e.Number.ToString() + nl
+                        + " - LineNumber = " + e.LineNumber.ToString() + nl
+                        
+
+                |  _ -> ""
+        if ex = null then
+                msg
+                //"-------------------------------------------------------\n\nException level " + level + ":\n\n" +  msg
+        else
+                //"-------------------------------------------------------\n\nException level " + level + ":\n\n" + 
+                let msg' = msg + nl +  " -------------------- Level " + string level + " -------------" + nl +  "Exception type = " + ex.GetType().ToString() + nl 
+                                + "hresult = " + hres  + nl
+                                + sqlDetail +  "Message = " + ex.Message + nl + "StackTrace = " + ex.StackTrace
+                create_message_of_exception  ex.InnerException   msg'  (level + 1)
+
+
+let stringOfException (e: Exception) = 
+        create_message_of_exception e "" 0
+         * 
+         * */
+
+        private static string createMessageOfException(System.Exception ex, int level, string initialMessage){
+
+            var hres = Marshal.GetHRForException(ex).ToString();
+
+            var nl = Environment.NewLine + Environment.NewLine;
+            var sqlDetail = "";
+            if (ex == null)
+            {
+                return initialMessage;
+            }
+            else
+            {
+                var msg = initialMessage + nl +  " -------------------- Level " + level.ToString() + " -------------" + nl +  "Exception type = " + ex.GetType().ToString() + nl 
+                                + "hresult = " + hres  + nl
+                                + sqlDetail +  "Message = " + ex.Message + nl + "StackTrace = " + ex.StackTrace;
+                return createMessageOfException(ex.InnerException, level + 1, msg);
+            }
+            
+
+        }
+
+        public static string stringOfException(System.Exception e)
+        {
+            return createMessageOfException(e, 0, "");
+        }
+
         public const int MAPI_E_COLLISION = -2147219964;
 
         private static readonly Dictionary<Outlook.OlCategoryColor, string> OutlookColorsStr = new Dictionary<Outlook.OlCategoryColor, string>()

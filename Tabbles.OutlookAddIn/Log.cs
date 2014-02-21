@@ -24,7 +24,7 @@ namespace Tabbles.OutlookAddIn
 
                 using (var sw = System.IO.File.AppendText(logFilePath))
                 {
-                    sw.WriteLine(txt + System.Environment.NewLine);
+                    sw.WriteLine(DateTime.Now.ToString() + ":  " +  txt + System.Environment.NewLine + System.Environment.NewLine);
                 }
             }
             catch { }
