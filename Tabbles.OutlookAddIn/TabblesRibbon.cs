@@ -43,6 +43,7 @@ namespace Tabbles.OutlookAddIn
         //public event IsAnyEmailSelectedHandler IsAnyEmailSelected;
 
         public MenuManager mMenuManager;
+        public ThisAddIn mAddin;
         public TabblesRibbon()
         {
         }
@@ -91,6 +92,7 @@ namespace Tabbles.OutlookAddIn
                     mMenuManager.openQuickTagAndShowResultInOutlook();
                     break;
                 case "syncWithTabblesButton":
+                    mAddin.importOutlookTaggingIntoTabbles();
                     //if (SyncWithTabbles != null)
                     //{
                     //    SyncWithTabbles(control, EventArgs.Empty);

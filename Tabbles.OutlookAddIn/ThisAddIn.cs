@@ -157,11 +157,11 @@ namespace Tabbles.OutlookAddIn
                                        let nameAt = new XAttribute("name", c)
                                        let colorNameAt = new XAttribute("color_name", category.Name)
                                        let ats = new object [] { colAt, nameAt, colorNameAt }
-                                       select new XElement("tag", ats))
+                                       select new XElement("tag", ats)).ToList()
                           let cmdLine = new XAttribute("command_line", menuManager.outlookPrefix + m.EntryID)
                           let subject = new XAttribute("subject", m.Subject)
                           let ats = new object[] { cmdLine, subject}
-                          let atsAndEls = els.Concat(ats)
+                          let atsAndEls = els.Concat(ats).ToList()
                           select new XElement("email", atsAndEls)).ToArray();
 
             var xelRoot = new XElement("update_tags_for_these_emails", emails);
@@ -185,9 +185,11 @@ namespace Tabbles.OutlookAddIn
                 {
                     var curFolder = frontier.Dequeue();
                     var emailsInFolder = curFolder.Items;
-                    foreach (MailItem m in emailsInFolder)
+                    foreach (var m in emailsInFolder)
                     {
-                        emails.Enqueue(m);
+                        var ma = m as MailItem;
+                        if (ma != null)
+                            emails.Enqueue(ma);
                     }
 
                     foreach (Folder ch in curFolder.Folders)
@@ -229,6 +231,7 @@ namespace Tabbles.OutlookAddIn
         protected override IRibbonExtensibility CreateRibbonExtensibilityObject()
         {
             this.ribbon = new TabblesRibbon();
+            ribbon.mAddin = this;
 
 
 
