@@ -186,6 +186,10 @@ namespace Tabbles.OutlookAddIn
 
         public void importOutlookTaggingIntoTabbles()
         {
+
+            var wndPr = new progress();
+            wndPr.Show();
+
             ThreadUtils.execInThreadForceNewThread(() =>
             {
                 var frontier = new Queue<Folder>();
@@ -216,7 +220,8 @@ namespace Tabbles.OutlookAddIn
                 // ora mando le email a Tabbles
                 sendMessageToTabblesUpdateTagsForEmails(emails);
 
-
+                ThreadUtils.gui( wndPr, () => { wndPr.Close(); });
+                
             });
 
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-
+using System.Windows;
 namespace Tabbles.OutlookAddIn
 {
     public static class ThreadUtils
@@ -36,7 +36,7 @@ namespace Tabbles.OutlookAddIn
         /// Execute a given piece of code in background, in a thread, in order to return quickly.
         /// </summary>
         /// <param name="a"></param>
-        public static void execInThread( Action a)
+        public static void execInThread(Action a)
         {
             if (System.Threading.Thread.CurrentThread.IsBackground)
             {
@@ -89,6 +89,13 @@ namespace Tabbles.OutlookAddIn
             th.Priority = ThreadPriority.Normal;
             th.IsBackground = true;
             th.Start();
+
+        }
+
+
+        public static void gui(System.Windows.Threading.DispatcherObject dobj, Action a)
+        {
+            dobj.Dispatcher.Invoke(a, null);
 
         }
     }
