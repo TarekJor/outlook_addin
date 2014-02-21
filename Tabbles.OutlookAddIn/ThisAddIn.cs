@@ -178,10 +178,13 @@ namespace Tabbles.OutlookAddIn
                           let atsAndEls = els.Concat(ats).ToList()
                           select new XElement("email", atsAndEls)).ToArray();
 
-            var xelRoot = new XElement("update_tags_for_these_emails", emails);
-            var xdoc = new XDocument(xelRoot);
-            //var text = xdoc.ToString();
-            MenuManager.sendXmlToTabbles(xdoc);
+            if (emails.Any())
+            {
+                var xelRoot = new XElement("update_tags_for_these_emails", emails);
+                var xdoc = new XDocument(xelRoot);
+                //var text = xdoc.ToString();
+                MenuManager.sendXmlToTabbles(xdoc);
+            }
         }
 
         public void importOutlookTaggingIntoTabbles()
