@@ -139,7 +139,16 @@ namespace Tabbles.OutlookAddIn
 
         //static List<Folder> mFolders = new HashSet<Folder>(); // prevents garbage collection. otherwise itemchange is not fired.
 
-
+        private bool checkNotNull(string debugStr, object o)
+        {
+            if (o == null)
+            {
+                var y = 4;
+                y = 4;
+                y = 4;
+            }
+            return true;
+        }
         void sendMessageToTabblesUpdateTagsForEmails(IEnumerable<MailItem> mails)
         {
 
@@ -149,17 +158,22 @@ namespace Tabbles.OutlookAddIn
 
             var emails = (from m in mails
                           let cats = Utils.GetCategories(m)
+                          where cats.Any()
                           let els = (from c in cats
                                        let category = this.Application.Session.Categories[c]
-
+                                     where checkNotNull("3", category)
+                                     where checkNotNull("4", category.Color)
+                                     where checkNotNull("5", category.Name)
                                        let col = Utils.GetRgbFromOutlookColor(category.Color)
                                        let colAt = new XAttribute("color", col)
                                        let nameAt = new XAttribute("name", c)
                                        let colorNameAt = new XAttribute("color_name", category.Name)
                                        let ats = new object [] { colAt, nameAt, colorNameAt }
                                        select new XElement("tag", ats)).ToList()
+                          where checkNotNull ("1", m.EntryID)
+                          where checkNotNull("2", m.Subject)
                           let cmdLine = new XAttribute("command_line", menuManager.outlookPrefix + m.EntryID)
-                          let subject = new XAttribute("subject", m.Subject)
+                          let subject = new XAttribute("subject", m.Subject == null? "" : m.Subject)
                           let ats = new object[] { cmdLine, subject}
                           let atsAndEls = els.Concat(ats).ToList()
                           select new XElement("email", atsAndEls)).ToArray();
