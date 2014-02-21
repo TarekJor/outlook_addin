@@ -438,7 +438,7 @@ namespace Tabbles.OutlookAddIn
             }
             catch (TimeoutException)
             {
-                WinForms.MessageBox.Show("Tabbles is not running.");
+                Log.log("Tabbles is not running. Message lost: " + xdoc.ToString());
             }
             //catch(UnauthorizedAccessException)
             //{
