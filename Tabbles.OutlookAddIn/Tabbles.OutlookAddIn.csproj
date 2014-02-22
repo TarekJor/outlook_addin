@@ -151,10 +151,11 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>Tabbles.OutlookAddIn_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>
+    </ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>9DE8D28DA5A0A23B2A10E7AF84B5257CCF249189</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>9FF6D1AA2846A4F4B1DB385102F3413E78F3B344</ManifestCertificateThumbprint>
   </PropertyGroup>
   <!--
     This section specifies references for the project.
