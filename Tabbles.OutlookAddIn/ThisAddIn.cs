@@ -117,7 +117,9 @@ namespace Tabbles.OutlookAddIn
                     while (frontier.Any())
                     {
                         var curFolder = frontier.Dequeue();
-                        curFolder.Items.ItemChange += Items_ItemChange;
+                        var itemsOfCurFolder = curFolder.Items;
+                        mItemsOfFolder.Add(itemsOfCurFolder); // see comment below, bm_75h57fh57
+                        itemsOfCurFolder.ItemChange += Items_ItemChange;
 
                         foreach (Folder ch in curFolder.Folders)
                         {
@@ -137,7 +139,8 @@ namespace Tabbles.OutlookAddIn
         }
 
 
-        //static List<Folder> mFolders = new HashSet<Folder>(); // prevents garbage collection. otherwise itemchange is not fired.
+
+        static List<Items> mItemsOfFolder = new List<Items>(); // prevents garbage collection. otherwise itemchange stops being fired the next time I iterate folders recursively, e.g. when doing recursive sync. bm_75h57fh57
 
         private bool checkNotNull(string debugStr, object o)
         {

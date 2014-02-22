@@ -60,34 +60,34 @@ namespace Tabbles.OutlookAddIn
         //    mail.Save();
         //}
 
-        private void NotifyItemChanged(object item)
-        {
-            lock (LockObj)
-            {
-                MailItem mail = item as MailItem;
-                if (mail != null)
-                {
-                    Folder folder = (Folder)mail.Parent;
-                    if (folder != null)
-                    {
-                        string folderId = folder.EntryID;
-                        if (this.mailsRemaining.ContainsKey(folderId))
-                        {
-                            List<string> mailIds = this.mailsRemaining[folderId];
-                            mailIds.Remove(mail.EntryID);
-                            if (mailIds.Count == 0)
-                            {
-                                if (this.itemsActionsDict.ContainsKey(folderId))
-                                {
-                                    ItemsActionStruct itemsAction = this.itemsActionsDict[folderId];
-                                    itemsAction.Items.ItemChange -= NotifyItemChanged;
-                                    itemsAction.Action();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        //private void NotifyItemChanged(object item)
+        //{
+        //    lock (LockObj)
+        //    {
+        //        MailItem mail = item as MailItem;
+        //        if (mail != null)
+        //        {
+        //            Folder folder = (Folder)mail.Parent;
+        //            if (folder != null)
+        //            {
+        //                string folderId = folder.EntryID;
+        //                if (this.mailsRemaining.ContainsKey(folderId))
+        //                {
+        //                    List<string> mailIds = this.mailsRemaining[folderId];
+        //                    mailIds.Remove(mail.EntryID);
+        //                    if (mailIds.Count == 0)
+        //                    {
+        //                        if (this.itemsActionsDict.ContainsKey(folderId))
+        //                        {
+        //                            ItemsActionStruct itemsAction = this.itemsActionsDict[folderId];
+        //                            itemsAction.Items.ItemChange -= NotifyItemChanged;
+        //                            itemsAction.Action();
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
     }
 }

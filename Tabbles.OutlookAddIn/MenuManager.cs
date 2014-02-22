@@ -521,7 +521,7 @@ namespace Tabbles.OutlookAddIn
         {
             try
             {
-                Log.log("before trying to lock to send this message: " + xdoc.ToString());
+                //Log.log("before trying to lock to send this message: " + xdoc.ToString());
                 lock (mLock) // only one thread at a time must attempt this. Otherwise pipe crashes.
                 {
                  
