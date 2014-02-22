@@ -157,6 +157,15 @@ namespace Tabbles.OutlookAddIn
             //    };
         }
 
+        class EntryIdChange
+        {
+            public string NewId { get; set; }
+            public string OldId { get; set; }
+
+            public string Subject { get; set; }
+
+        }
+
         void explorer_BeforeItemPaste(ref object clipboardContent, MAPIFolder Target, ref bool Cancel)
         {
             if (!this.trackItemMove) //prevent infinite loop
@@ -216,15 +225,27 @@ namespace Tabbles.OutlookAddIn
                     Cancel = true; // because I am doing the move myself with mail.Move()
                     this.trackItemMove = false;
 
+                    var pairs = new List<EntryIdChange>();
                     foreach (MailItem mail in mailsToMove)
                     {
                         MailItem mailAfterMove = (MailItem)mail.Move(Target);
                         Log.log("moved mail. old id = " + mail.EntryID + " ---- new id = " + mailAfterMove.EntryID);
+                        pairs.Add(new EntryIdChange { OldId = mail.EntryID, NewId = mailAfterMove.EntryID, Subject = mail.Subject });
                         Utils.ReleaseComObject(mailAfterMove);
-                        //WinForms.MessageBox.Show(mail.EntryID + "\n\n" + mailAfterMove.EntryID);
-                        //TODO Maurizio: call Tabbles API at this point
                     }
                     this.trackItemMove = true;
+
+                    ThreadUtils.execInThreadForceNewThread(() => {
+                        var emails = (from m in pairs
+                                      let atSubj = new XAttribute("subject", m.Subject)
+                                      let atOldId = new XAttribute("old_cmd_line", outlookPrefix + m.OldId)
+                                      let atNewId = new XAttribute("new_cmd_line", outlookPrefix + m.NewId)
+                                      let ats = new[] { atSubj, atOldId, atNewId }
+                                      select new XElement("id_change", ats)).ToArray();
+                        var xelRoot = new XElement("update_email_ids", emails);
+                        var xdoc = new XDocument(xelRoot);
+                        sendXmlToTabbles(xdoc);
+                    });
 
                 }
                 finally
