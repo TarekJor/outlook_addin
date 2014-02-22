@@ -177,7 +177,12 @@ namespace Tabbles.OutlookAddIn
             }
             return true;
         }
-        void sendMessageToTabblesUpdateTagsForEmails(IEnumerable<MailItem> mails)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mails"></param>
+        /// <param name="cont">an action which is told if tabbles-was-running</param>
+        void sendMessageToTabblesUpdateTagsForEmails(IEnumerable<MailItem> mails, Action<bool> cont)
         {
 
             //var atSubj = new XAttribute("subject", m.Subject);
@@ -211,7 +216,8 @@ namespace Tabbles.OutlookAddIn
                 var xelRoot = new XElement("update_tags_for_these_emails", emails);
                 var xdoc = new XDocument(xelRoot);
                 //var text = xdoc.ToString();
-                MenuManager.sendXmlToTabbles(xdoc);
+                var tabblesWasRunning = MenuManager.sendXmlToTabbles(xdoc);
+                cont(tabblesWasRunning);
             }
         }
 
@@ -256,7 +262,13 @@ namespace Tabbles.OutlookAddIn
 
 
                 // ora mando le email a Tabbles
-                sendMessageToTabblesUpdateTagsForEmails(emails);
+                sendMessageToTabblesUpdateTagsForEmails(emails, 
+                    
+                                    tabblesWasRunning => { if (!tabblesWasRunning) {
+                                        ThreadUtils.gui(wndPr, () => { MenuManager.showMessageTabblesIsNotRunning(); });
+                                    } 
+                                    
+                                    });
 
                 ThreadUtils.gui( wndPr, () => { wndPr.Close(); });
                 
@@ -274,7 +286,7 @@ namespace Tabbles.OutlookAddIn
                 {
 
                     var emails = new MailItem[] { (MailItem)Item };
-                    sendMessageToTabblesUpdateTagsForEmails(emails);
+                    sendMessageToTabblesUpdateTagsForEmails(emails, tabblesWasRunning => { });
                 });
             }
         }
