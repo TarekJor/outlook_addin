@@ -152,14 +152,11 @@
   </data>
   <data name="MsgDoYouWantToSync" xml:space="preserve">
     <value>Do you want to import all your existing email
-categorization into Tabbles? It may take a few minutes
-and it should be super-cool :)</value>
+categorization into Tabbles?</value>
   </data>
-  <data name="MsgSyncIsRunning" xml:space="preserve">
-    <value>Synchronization with Tabbles is already running.</value>
-  </data>
-  <data name="MsgTabblesIsNotRunning" xml:space="preserve">
-    <value>You cannot move e-mails to another account when Tabbles is not running.</value>
+  
+  <data name="MsgTabblesIsNotRunning2" xml:space="preserve">
+    <value>Tabbles is not running.</value>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="open_in_tabbles_16_mask" type="System.Resources.ResXFileRef, System.Windows.Forms">

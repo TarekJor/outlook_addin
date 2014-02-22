@@ -41,51 +41,51 @@ namespace Tabbles.OutlookAddIn
            // xmlFileManager = new XMLFileManager();
         }
 
-        public System.Action GetSyncAction()
-        {
-            System.Action action = new System.Action(() =>
-            {
-                if (InProcess)
-                {
-                    System.Windows.MessageBox.Show(Res.MsgSyncIsRunning);
-                    return;
-                }
+        //public System.Action GetSyncAction()
+        //{
+        //    System.Action action = new System.Action(() =>
+        //    {
+        //        if (InProcess)
+        //        {
+        //            System.Windows.MessageBox.Show(Res.MsgSyncIsRunning);
+        //            return;
+        //        }
 
-                InProcess = true;
+        //        InProcess = true;
 
-                PromptDialog confirmationWindow = new PromptDialog()
-                {
-                    OkText = Res.LabelOk,
-                    CancelText = Res.LabelCancel,
-                    Message = Res.MsgDoYouWantToSync,
-                    DontShowAgainMessage = Res.MsgDontAskAgain,
+        //        PromptDialog confirmationWindow = new PromptDialog()
+        //        {
+        //            OkText = Res.LabelOk,
+        //            CancelText = Res.LabelCancel,
+        //            Message = Res.MsgDoYouWantToSync,
+        //            DontShowAgainMessage = Res.MsgDontAskAgain,
 
-                     //SUJAYXML
-                  //  WasDontAskAgain = xmlFileManager.IsDontAskForSync()
-                   //  WasDontAskAgain = RegistryManager.IsDontAskForSync()
-                };
+        //             //SUJAYXML
+        //          //  WasDontAskAgain = xmlFileManager.IsDontAskForSync()
+        //           //  WasDontAskAgain = RegistryManager.IsDontAskForSync()
+        //        };
 
-                bool? answer = confirmationWindow.ShowDialog();
+        //        bool? answer = confirmationWindow.ShowDialog();
 
-                RegistryManager.SetDontAskForSync(confirmationWindow.IsDontAskAgain);
+        //        RegistryManager.SetDontAskForSync(confirmationWindow.IsDontAskAgain);
 
-                //SUJAYXML
-                //xmlFileManager.SetDontAskForSync(confirmationWindow.IsDontAskAgain);
+        //        //SUJAYXML
+        //        //xmlFileManager.SetDontAskForSync(confirmationWindow.IsDontAskAgain);
 
-                if (answer.HasValue && answer.Value)
-                {
-                    SyncProgress progressWindow = new SyncProgress(Run);
-                    //progressWindow.Cancel += OnCancel;
-                    progressWindow.ShowDialog();
-                }
-                else
-                {
-                    InProcess = false;
-                }
-            });
+        //        if (answer.HasValue && answer.Value)
+        //        {
+        //            SyncProgress progressWindow = new SyncProgress(Run);
+        //            //progressWindow.Cancel += OnCancel;
+        //            progressWindow.ShowDialog();
+        //        }
+        //        else
+        //        {
+        //            InProcess = false;
+        //        }
+        //    });
 
-            return action;
-        }
+        //    return action;
+        //}
 
         private void Run()
         {

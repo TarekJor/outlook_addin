@@ -279,11 +279,11 @@ namespace Tabbles.OutlookAddIn
             }
         }
 
-        private void StartSyncThread()
-        {
-            System.Action syncAction = this.syncManager.GetSyncAction();
-            syncAction();
-        }
+        //private void StartSyncThread()
+        //{
+        //    System.Action syncAction = this.syncManager.GetSyncAction();
+        //    syncAction();
+        //}
 
         protected override IRibbonExtensibility CreateRibbonExtensibilityObject()
         {

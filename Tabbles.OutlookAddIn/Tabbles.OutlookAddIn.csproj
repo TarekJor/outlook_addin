@@ -148,7 +148,7 @@
     </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>false</SignManifests>
+    <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>Tabbles.OutlookAddIn_TemporaryKey.pfx</ManifestKeyFile>

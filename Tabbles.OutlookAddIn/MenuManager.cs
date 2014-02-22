@@ -145,7 +145,7 @@ namespace Tabbles.OutlookAddIn
         private void AddExplorerListeners(Explorer explorer)
         {
             this.explorerList.Add(explorer);
-            
+
             explorer.SelectionChange += UpdateSelectedEmails;
             //explorer.BeforeItemCopy += explorer_BeforeItemCopy;
             //explorer.BeforeItemCut += explorer_BeforeItemCut;
@@ -191,7 +191,7 @@ namespace Tabbles.OutlookAddIn
                     return;
                 }
 
-                
+
                 try
                 {
                     bool mailMovedToDifferentStore = u.c(() =>
@@ -221,7 +221,7 @@ namespace Tabbles.OutlookAddIn
                         return;
                     }
 
-               
+
                     Cancel = true; // because I am doing the move myself with mail.Move()
                     this.trackItemMove = false;
 
@@ -235,7 +235,8 @@ namespace Tabbles.OutlookAddIn
                     }
                     this.trackItemMove = true;
 
-                    ThreadUtils.execInThreadForceNewThread(() => {
+                    ThreadUtils.execInThreadForceNewThread(() =>
+                    {
                         var emails = (from m in pairs
                                       let atSubj = new XAttribute("subject", m.Subject)
                                       let atOldId = new XAttribute("old_cmd_line", outlookPrefix + m.OldId)
@@ -244,7 +245,7 @@ namespace Tabbles.OutlookAddIn
                                       select new XElement("id_change", ats)).ToArray();
                         var xelRoot = new XElement("update_email_ids", emails);
                         var xdoc = new XDocument(xelRoot);
-                        sendXmlToTabbles(xdoc);
+                        var tabblesWasRunning = sendXmlToTabbles(xdoc);
                     });
 
                 }
@@ -517,14 +518,14 @@ namespace Tabbles.OutlookAddIn
 
         private static object mLock = new object();
 
-        public static void sendXmlToTabbles(XDocument xdoc)
+        public static bool sendXmlToTabbles(XDocument xdoc)
         {
             try
             {
                 //Log.log("before trying to lock to send this message: " + xdoc.ToString());
                 lock (mLock) // only one thread at a time must attempt this. Otherwise pipe crashes.
                 {
-                 
+
                     using (var pc = new NamedPipeClientStream("TABBLES_PIPE_FROM_OUTLOOK"))
                     {
                         pc.Connect(500);
@@ -533,10 +534,12 @@ namespace Tabbles.OutlookAddIn
                     }
                 }
                 Log.log("Message sent to Tabbles successfully: " + xdoc.ToString());
+                return true;
             }
             catch (TimeoutException)
             {
                 Log.log("Tabbles is not running. Message lost: " + xdoc.ToString());
+                return false;
             }
             //catch(UnauthorizedAccessException)
             //{
@@ -545,13 +548,20 @@ namespace Tabbles.OutlookAddIn
 
         }
 
+        public static void showMessageTabblesIsNotRunning()
+        {
+            System.Windows.MessageBox.Show(Res.MsgTabblesIsNotRunning2);
+        }
+
         public void openQuickTagAndShowResultInOutlook()
         {
 
-            
+
             var xelRoot = new XElement("quick_open_tags_in_outlook");
             var xdoc = new XDocument(xelRoot);
-            sendXmlToTabbles(xdoc);
+            var tabblesWasRunning = sendXmlToTabbles(xdoc);
+            if (!tabblesWasRunning)
+                showMessageTabblesIsNotRunning();
 
         }
 
@@ -565,7 +575,9 @@ namespace Tabbles.OutlookAddIn
                           select new XElement("email", ats)).ToArray();
             var xelRoot = new XElement("i_need_to_tag_emails", emails);
             var xdoc = new XDocument(xelRoot);
-            sendXmlToTabbles(xdoc);
+            var tabblesWasRunning  = sendXmlToTabbles(xdoc);
+            if (!tabblesWasRunning)
+                showMessageTabblesIsNotRunning();
 
             // todo 
             //if (SendMessageToTabbles == null)
@@ -617,11 +629,13 @@ namespace Tabbles.OutlookAddIn
             var ats = new[] { atSubj, atCmdLine };
             var xelRoot = new XElement("locate_email", ats);
             var xdoc = new XDocument(xelRoot);
-            sendXmlToTabbles(xdoc);
+            var tabblesWasRunning = sendXmlToTabbles(xdoc);
+            if (!tabblesWasRunning)
+                showMessageTabblesIsNotRunning();
 
         }
 
-        
+
         //private void tabblesSearch_Click(CommandBarButton Ctrl, ref bool CancelDefault)
         //{
         //    // 
