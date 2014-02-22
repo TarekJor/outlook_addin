@@ -15,6 +15,23 @@ namespace Tabbles.OutlookAddIn
             return (System.IO.Path.Combine(tabblesFolder, "log_outlook_addin.txt"));
         }
 
+        /// <summary>
+        /// Meant to be called every 10 minutes or so.
+        /// </summary>
+        public static void deleteLogIfTooLong()
+        {
+
+            var logFilePath = getLogFilePath();
+
+            var fi = new System.IO.FileInfo(logFilePath);
+            if (fi.Length > 1000000)
+            {
+                System.IO.File.Delete(logFilePath);
+            }
+
+
+        }
+
         public static void log(string txt)
         {
             try
@@ -24,7 +41,7 @@ namespace Tabbles.OutlookAddIn
 
                 using (var sw = System.IO.File.AppendText(logFilePath))
                 {
-                    sw.WriteLine(DateTime.Now.ToString() + ":  " +  txt + System.Environment.NewLine + System.Environment.NewLine);
+                    sw.WriteLine(DateTime.Now.ToString() + ":  " + txt + System.Environment.NewLine + System.Environment.NewLine);
                 }
             }
             catch { }

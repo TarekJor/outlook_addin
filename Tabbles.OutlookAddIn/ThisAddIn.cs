@@ -92,6 +92,31 @@ namespace Tabbles.OutlookAddIn
                 this.listenerThread = new Thread(ListenTabblesEvents);
                 this.listenerThread.Start();
 
+
+                // thread which deletes the log when it is too big
+                ThreadUtils.execInThreadForceNewThread( () =>
+                {
+
+                    while (true)
+                    {
+                        try
+                        {
+                            Log.deleteLogIfTooLong();
+
+                            // 10 minutes
+                            System.Threading.Thread.Sleep(1000 * 60 * 10);
+
+                        }
+                        catch
+                        {
+                            // probably an access problem (some other thread might be writing to the log).
+                            System.Threading.Thread.Sleep(2000); // retry in 2 seconds
+
+                        }
+                    }
+                });
+
+
                 //Application.AdvancedSearchComplete += new ApplicationEvents_11_AdvancedSearchCompleteEventHandler(Application_AdvancedSearchComplete);
 
                 //  if (!RegistryManager.IsSyncPerformed() && !RegistryManager.IsDontAskForSync())
