@@ -15,6 +15,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.IO.Pipes;
 using System.Xml.Linq;
+using u = Tabbles.OutlookAddIn.Utils;
 namespace Tabbles.OutlookAddIn
 {
 
@@ -146,8 +147,8 @@ namespace Tabbles.OutlookAddIn
             this.explorerList.Add(explorer);
             
             explorer.SelectionChange += UpdateSelectedEmails;
-            explorer.BeforeItemCopy += explorer_BeforeItemCopy;
-            explorer.BeforeItemCut += explorer_BeforeItemCut;
+            //explorer.BeforeItemCopy += explorer_BeforeItemCopy;
+            //explorer.BeforeItemCut += explorer_BeforeItemCut;
             explorer.BeforeItemPaste += explorer_BeforeItemPaste;
 
             //explorer.FolderSwitch += () =>
@@ -156,24 +157,7 @@ namespace Tabbles.OutlookAddIn
             //    };
         }
 
-        void explorer_BeforeItemPaste(ref object ClipboardContent, MAPIFolder Target, ref bool Cancel)
-        {
-            var cl = (Selection)ClipboardContent;
-            var y = 5;
-        }
-
-        void explorer_BeforeItemCut(ref bool Cancel)
-        {
-            var y = 5;
-        }
-
-        void explorer_BeforeItemCopy(ref bool Cancel)
-        {
-            var y = 5;
-        }
-
-        // era chiamata in explorer_BeforeItemPaste
-        private void TrackEmailMove(ref object clipboardContent, MAPIFolder target, ref bool cancel)
+        void explorer_BeforeItemPaste(ref object clipboardContent, MAPIFolder Target, ref bool Cancel)
         {
             if (!this.trackItemMove) //prevent infinite loop
             {
@@ -182,62 +166,60 @@ namespace Tabbles.OutlookAddIn
 
             if (clipboardContent is Selection)
             {
-                List<MailItem> mails = new List<MailItem>();
+                List<MailItem> mailsToMove = new List<MailItem>();
 
                 Selection selection = (Selection)clipboardContent;
                 foreach (object itemObj in selection)
                 {
                     if (itemObj is MailItem)
                     {
-                        mails.Add((MailItem)itemObj);
+                        mailsToMove.Add((MailItem)itemObj);
                     }
                 }
 
-                if (mails.Count == 0)
+                if (mailsToMove.Count == 0)
                 {
                     return;
                 }
 
-                bool movedFromStore = false;
+                
                 try
                 {
-                    foreach (MailItem mail in mails)
+                    bool mailMovedToDifferentStore = u.c(() =>
                     {
-                        if (string.IsNullOrEmpty(mail.Categories))
+                        foreach (MailItem mail in mailsToMove)
                         {
-                            continue;
-                        }
-
-                        if (mail.Parent is Folder)
-                        {
-                            Folder parent = (Folder)mail.Parent;
-                            if (parent.StoreID != target.StoreID)
+                            if (string.IsNullOrEmpty(mail.Categories))
                             {
-                                movedFromStore = true;
-                                break;
+                                continue;
+                            }
+
+                            if (mail.Parent is Folder)
+                            {
+                                Folder parent = (Folder)mail.Parent;
+                                if (parent.StoreID != Target.StoreID)
+                                {
+                                    return true;
+                                }
                             }
                         }
-                    }
+                        return false;
 
-                    if (!movedFromStore)
+                    });
+
+                    if (!mailMovedToDifferentStore)
                     {
                         return;
                     }
 
-                    // todo maurizio
-                    //if (!CheckTabblesRunning())
-                    //{
-                    //    cancel = true;
-                    //    WinForms.MessageBox.Show(Res.MsgTabblesIsNotRunning, Res.MsgCaptionTabblesAddIn);
-                    //    return;
-                    //}
-
-                    cancel = true;
+               
+                    Cancel = true; // because I am doing the move myself with mail.Move()
                     this.trackItemMove = false;
 
-                    foreach (MailItem mail in mails)
+                    foreach (MailItem mail in mailsToMove)
                     {
-                        MailItem mailAfterMove = (MailItem)mail.Move(target);
+                        MailItem mailAfterMove = (MailItem)mail.Move(Target);
+                        Log.log("moved mail. old id = " + mail.EntryID + " ---- new id = " + mailAfterMove.EntryID);
                         Utils.ReleaseComObject(mailAfterMove);
                         //WinForms.MessageBox.Show(mail.EntryID + "\n\n" + mailAfterMove.EntryID);
                         //TODO Maurizio: call Tabbles API at this point
@@ -247,13 +229,106 @@ namespace Tabbles.OutlookAddIn
                 }
                 finally
                 {
-                    foreach (MailItem mail in mails)
+                    foreach (MailItem mail in mailsToMove)
                     {
                         Utils.ReleaseComObject(mail);
                     }
                 }
             }
         }
+
+        //void explorer_BeforeItemCut(ref bool Cancel)
+        //{
+        //    var y = 5;
+        //}
+
+        //void explorer_BeforeItemCopy(ref bool Cancel)
+        //{
+        //    var y = 5;
+        //}
+
+        //// era chiamata in explorer_BeforeItemPaste
+        //private void TrackEmailMove(ref object clipboardContent, MAPIFolder target, ref bool cancel)
+        //{
+        //    if (!this.trackItemMove) //prevent infinite loop
+        //    {
+        //        return;
+        //    }
+
+        //    if (clipboardContent is Selection)
+        //    {
+        //        List<MailItem> mails = new List<MailItem>();
+
+        //        Selection selection = (Selection)clipboardContent;
+        //        foreach (object itemObj in selection)
+        //        {
+        //            if (itemObj is MailItem)
+        //            {
+        //                mails.Add((MailItem)itemObj);
+        //            }
+        //        }
+
+        //        if (mails.Count == 0)
+        //        {
+        //            return;
+        //        }
+
+        //        bool movedFromStore = false;
+        //        try
+        //        {
+        //            foreach (MailItem mail in mails)
+        //            {
+        //                if (string.IsNullOrEmpty(mail.Categories))
+        //                {
+        //                    continue;
+        //                }
+
+        //                if (mail.Parent is Folder)
+        //                {
+        //                    Folder parent = (Folder)mail.Parent;
+        //                    if (parent.StoreID != target.StoreID)
+        //                    {
+        //                        movedFromStore = true;
+        //                        break;
+        //                    }
+        //                }
+        //            }
+
+        //            if (!movedFromStore)
+        //            {
+        //                return;
+        //            }
+
+        //            // todo maurizio
+        //            //if (!CheckTabblesRunning())
+        //            //{
+        //            //    cancel = true;
+        //            //    WinForms.MessageBox.Show(Res.MsgTabblesIsNotRunning, Res.MsgCaptionTabblesAddIn);
+        //            //    return;
+        //            //}
+
+        //            cancel = true;
+        //            this.trackItemMove = false;
+
+        //            foreach (MailItem mail in mails)
+        //            {
+        //                MailItem mailAfterMove = (MailItem)mail.Move(target);
+        //                Utils.ReleaseComObject(mailAfterMove);
+        //                //WinForms.MessageBox.Show(mail.EntryID + "\n\n" + mailAfterMove.EntryID);
+        //                //TODO Maurizio: call Tabbles API at this point
+        //            }
+        //            this.trackItemMove = true;
+
+        //        }
+        //        finally
+        //        {
+        //            foreach (MailItem mail in mails)
+        //            {
+        //                Utils.ReleaseComObject(mail);
+        //            }
+        //        }
+        //    }
+        //}
 
         private void UpdateSelectedEmails()
         {

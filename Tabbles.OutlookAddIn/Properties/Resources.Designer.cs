@@ -189,7 +189,7 @@ namespace Tabbles.OutlookAddIn.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You cannot move e-mails to another account when Tabbles is not running..
+        ///   Looks up a localized string similar to You cannot move e-mailsToMove to another account when Tabbles is not running..
         /// </summary>
         public static string MsgTabblesIsNotRunning {
             get {

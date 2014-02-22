@@ -301,6 +301,11 @@ let stringOfException (e: Exception) =
                 }
             }
         }
+
+        public static T c<T>(Func<T> f)
+        {
+            return f();
+        }
     }
 
     public enum OutlookVersion
